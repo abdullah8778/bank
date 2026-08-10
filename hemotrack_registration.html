@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HemoTrack — Donor Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#0A1628;
+    --navy-900:#0F1E36;
+    --navy-800:#152A47;
+    --navy-700:#1C3459;
+    --paper:#F6F3EC;
+    --blood:#B3122C;
+    --blood-bright:#E13E52;
+    --gold:#C9A227;
+    --muted:#8592A6;
+    --line:rgba(255,255,255,0.09);
+    --ok:#3FAE68;
+    --warn:#E0A030;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--navy-950);
+    color:var(--paper);
+    font-family:'Manrope',sans-serif;
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(179,18,44,0.14), transparent 45%),
+      radial-gradient(circle at 85% 100%, rgba(201,162,39,0.08), transparent 40%);
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px clamp(16px,4vw,48px);
+    border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:20;
+    background:rgba(10,22,40,0.85);
+    backdrop-filter:blur(10px);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand svg{width:34px; height:34px; flex-shrink:0;}
+  .brand-text h1{font-size:19px; font-weight:800; letter-spacing:.3px;}
+  .brand-text span{display:block; font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; letter-spacing:1px;}
+
+  .tabs{display:flex; gap:6px; background:var(--navy-900); border:1px solid var(--line); border-radius:12px; padding:4px;}
+  .tab-btn{
+    border:none; background:transparent; color:var(--muted); cursor:pointer;
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:14px;
+    padding:9px 18px; border-radius:9px; transition:.2s;
+  }
+  .tab-btn.active{background:var(--blood); color:#fff; box-shadow:0 4px 14px rgba(179,18,44,.35);}
+  .tab-btn:not(.active):hover{color:var(--paper);}
+
+  main{max-width:1100px; margin:0 auto; padding:36px clamp(16px,4vw,48px) 80px;}
+  .view{display:none; animation:fade .35s ease;}
+  .view.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .pulse-wrap{display:flex; align-items:center; gap:14px; margin:0 0 30px;}
+  .pulse-wrap .dot{width:8px; height:8px; border-radius:50%; background:var(--blood-bright); box-shadow:0 0 0 0 rgba(225,62,82,.6); animation:ping 1.8s infinite;}
+  @keyframes ping{
+    0%{box-shadow:0 0 0 0 rgba(225,62,82,.55);}
+    70%{box-shadow:0 0 0 9px rgba(225,62,82,0);}
+    100%{box-shadow:0 0 0 0 rgba(225,62,82,0);}
+  }
+  .pulse-line{flex:1; height:26px;}
+  .pulse-label{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:1.5px; white-space:nowrap;}
+
+  .card{
+    background:linear-gradient(180deg, var(--navy-900), var(--navy-800));
+    border:1px solid var(--line); border-radius:18px;
+    padding:clamp(20px,3vw,34px);
+  }
+  .card + .card{margin-top:22px;}
+  .card h2{font-size:16px; font-weight:800; margin-bottom:4px;}
+  .card .sub{font-size:12.5px; color:var(--muted); margin-bottom:22px;}
+
+  form{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
+  .field{display:flex; flex-direction:column; gap:7px;}
+  .field.full{grid-column:1/-1;}
+  .field-pair{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  label{font-size:12.5px; font-weight:700; color:var(--paper);}
+  label .req{color:var(--blood-bright); margin-inline-start:2px;}
+  input, select, textarea{
+    background:var(--navy-950); border:1px solid var(--line); border-radius:10px;
+    padding:11px 13px; color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:13.5px;
+    outline:none; transition:.15s; width:100%;
+  }
+  input::placeholder, textarea::placeholder{color:#4C596E; font-family:'Manrope',sans-serif;}
+  input:focus, select:focus, textarea:focus{border-color:var(--blood-bright); box-shadow:0 0 0 3px rgba(225,62,82,.15);}
+  select{cursor:pointer;}
+  .hint{font-size:11px; color:var(--muted);}
+  .error-text{font-size:11px; color:var(--blood-bright); min-height:14px;}
+
+  .section-label{
+    grid-column:1/-1; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--gold);
+    text-transform:uppercase; margin-top:6px; padding-top:14px; border-top:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .section-label:first-of-type{border-top:none; padding-top:0; margin-top:0;}
+
+  .type-toggle{display:flex; gap:10px;}
+  .type-toggle label.opt{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+    border:1px solid var(--line); border-radius:10px; padding:11px; cursor:pointer;
+    font-size:13px; font-weight:700; color:var(--muted); background:var(--navy-950); transition:.15s;
+  }
+  .type-toggle input{width:auto; display:none;}
+  .type-toggle label.opt.checked{border-color:var(--blood-bright); color:#fff; background:rgba(179,18,44,.15);}
+
+  .btn-row{grid-column:1/-1; display:flex; align-items:center; gap:14px; margin-top:6px; flex-wrap:wrap;}
+  button.submit{
+    background:var(--blood); color:#fff; border:none; border-radius:11px;
+    padding:14px 30px; font-family:'Manrope',sans-serif; font-weight:800; font-size:14.5px;
+    cursor:pointer; transition:.2s; box-shadow:0 8px 20px rgba(179,18,44,.3);
+  }
+  button.submit:hover{background:var(--blood-bright); transform:translateY(-1px);}
+  button.submit:disabled{opacity:.55; cursor:not-allowed; transform:none;}
+  .status-msg{font-size:13px; font-weight:700;}
+  .status-msg.ok{color:var(--ok);}
+  .status-msg.warn{color:var(--warn);}
+  .status-msg.err{color:var(--blood-bright);}
+
+  .stats-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px;}
+  .stat{
+    background:var(--navy-900); border:1px solid var(--line); border-radius:14px; padding:18px 20px;
+    position:relative; overflow:hidden;
+  }
+  .stat::before{content:''; position:absolute; inset-inline-start:0; top:0; bottom:0; width:3px; background:var(--blood);}
+  .stat.ok-stat::before{background:var(--ok);}
+  .stat.warn-stat::before{background:var(--warn);}
+  .stat .num{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600;}
+  .stat .lbl{font-size:11.5px; color:var(--muted); margin-top:4px;}
+
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  @media (max-width:860px){.two-col{grid-template-columns:1fr;}}
+
+  .chart-row{display:flex; flex-direction:column; gap:10px;}
+  .bar-item{display:grid; grid-template-columns:56px 1fr 44px; align-items:center; gap:12px;}
+  .bar-item .type{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--gold);}
+  .bar-track{background:var(--navy-950); border:1px solid var(--line); border-radius:6px; height:16px; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg, var(--blood), var(--blood-bright)); border-radius:6px; transition:width .5s ease;}
+  .bar-fill.alt{background:linear-gradient(90deg, #5B7BA8, var(--gold));}
+  .bar-item .count{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted); text-align:right;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  thead th{
+    text-align:left; font-size:11px; color:var(--muted); font-weight:700;
+    padding:10px 12px; border-bottom:1px solid var(--line); letter-spacing:.5px;
+  }
+  tbody td{padding:12px; border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:12.5px;}
+  tbody tr:hover{background:rgba(255,255,255,0.03);}
+  .chip{
+    display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:700;
+    background:rgba(179,18,44,.18); color:var(--blood-bright); border:1px solid rgba(179,18,44,.4);
+  }
+  .chip.type-therapeutic{background:rgba(201,162,39,.15); color:var(--gold); border-color:rgba(201,162,39,.4);}
+  .chip.status-eligible{background:rgba(63,174,104,.15); color:var(--ok); border-color:rgba(63,174,104,.4);}
+  .chip.status-flagged{background:rgba(224,160,48,.15); color:var(--warn); border-color:rgba(224,160,48,.4);}
+  .empty{text-align:center; padding:40px 10px; color:var(--muted); font-size:13.5px;}
+
+  .live-badge{display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--ok); font-family:'IBM Plex Mono',monospace;}
+  .live-badge .d{width:6px; height:6px; border-radius:50%; background:var(--ok); animation:ping 1.8s infinite;}
+
+  .table-toolbar{display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+  .table-toolbar input[type="text"]{flex:1; min-width:180px;}
+  .table-toolbar select{width:auto; min-width:120px;}
+  .btn-ghost{
+    background:transparent; border:1px solid var(--line); color:var(--paper);
+    border-radius:10px; padding:11px 16px; font-family:'Manrope',sans-serif; font-weight:700; font-size:13px;
+    cursor:pointer; transition:.15s; white-space:nowrap;
+  }
+  .btn-ghost:hover{border-color:var(--gold); color:var(--gold);}
+  .row-del{
+    background:transparent; border:1px solid rgba(225,62,82,.35); color:var(--blood-bright);
+    border-radius:8px; padding:5px 10px; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px;
+    cursor:pointer; transition:.15s;
+  }
+  .row-del:hover{background:rgba(225,62,82,.15);}
+
+  @media (max-width:720px){
+    form{grid-template-columns:1fr;}
+    .field-pair{grid-template-columns:1fr;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);}
+    header{flex-direction:column; gap:14px; align-items:stretch;}
+    .tabs{justify-content:center;}
+    table{font-size:11.5px;}
+    thead th:nth-child(4), tbody td:nth-child(4){display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 40 40" fill="none">
+      <path d="M20 4 C20 4 8 18 8 26 C8 33.3 13.4 38 20 38 C26.6 38 32 33.3 32 26 C32 18 20 4 20 4 Z" fill="#B3122C"/>
+      <circle cx="16" cy="24" r="3.2" fill="#F6F3EC" opacity="0.35"/>
+    </svg>
+    <div class="brand-text">
+      <h1>HemoTrack AI</h1>
+      <span>DONOR REGISTRATION & MONITORING</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-view="register">Register</button>
+    <button class="tab-btn" data-view="monitor">Live Monitor</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ REGISTRATION VIEW ============ -->
+  <section class="view active" id="view-register">
+    <div class="pulse-wrap">
+      <span class="dot"></span>
+      <svg class="pulse-line" viewBox="0 0 400 26" preserveAspectRatio="none"><polyline points="0,13 40,13 55,4 70,24 85,2 100,13 400,13" fill="none" stroke="#B3122C" stroke-width="1.6"/></svg>
+      <span class="pulse-label">RECORD · NEW DONOR INTAKE</span>
+    </div>
+
+    <div class="card">
+      <h2>Donor Intake Form</h2>
+      <p class="sub">Fields marked <span style="color:var(--blood-bright)">*</span> are required. Registration is saved automatically and screened against basic donation-eligibility thresholds.</p>
+
+      <form id="donorForm" novalidate>
+
+        <div class="section-label">Identity</div>
+        <div class="field">
+          <label>Full Name <span class="req">*</span></label>
+          <input type="text" id="fullName" placeholder="e.g. Abdullah Mohammed" required>
+          <div class="error-text" data-err="fullName"></div>
+        </div>
+        <div class="field">
+          <label>National ID / Iqama <span class="req">*</span></label>
+          <input type="text" id="nationalId" inputmode="numeric" maxlength="10" placeholder="10 digits" required>
+          <div class="error-text" data-err="nationalId"></div>
+        </div>
+        <div class="field">
+          <label>Phone Number <span class="req">*</span></label>
+          <input type="text" id="phone" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" required>
+          <div class="error-text" data-err="phone"></div>
+        </div>
+        <div class="field">
+          <label>Age <span class="req">*</span></label>
+          <input type="number" id="age" min="17" max="65" placeholder="17 – 65" required>
+          <div class="error-text" data-err="age"></div>
+        </div>
+        <div class="field">
+          <label>Gender <span class="req">*</span></label>
+          <select id="gender" required>
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+          <div class="error-text" data-err="gender"></div>
+        </div>
+        <div class="field">
+          <label>Weight (kg)</label>
+          <input type="number" id="weight" min="30" placeholder="≥ 50 kg recommended">
+        </div>
+
+        <div class="section-label">Donation Details</div>
+        <div class="field full">
+          <label>Donation Type <span class="req">*</span></label>
+          <div class="type-toggle">
+            <label class="opt checked" data-type="Regular">
+              <input type="radio" name="donationType" value="Regular" checked> Regular Donation
+            </label>
+            <label class="opt" data-type="Therapeutic">
+              <input type="radio" name="donationType" value="Therapeutic"> Therapeutic Donation
+            </label>
+          </div>
+          <div class="hint">Therapeutic = medically indicated phlebotomy (e.g. polycythemia, hemochromatosis), not routed for standard transfusion release.</div>
+        </div>
+        <div class="field">
+          <label>Blood Type (ABO/Rh) <span class="req">*</span></label>
+          <select id="bloodType" required>
+            <option value="">Select type</option>
+            <option>O+</option><option>O-</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option>
+          </select>
+          <div class="error-text" data-err="bloodType"></div>
+        </div>
+        <div class="field">
+          <label>Last Donation Date</label>
+          <input type="date" id="lastDonation">
+          <div class="hint">Leave blank if this is a first-time donation</div>
+        </div>
+
+        <div class="section-label">Clinical Screening</div>
+        <div class="field">
+          <label>Hemoglobin (g/dL) <span class="req">*</span></label>
+          <input type="number" step="0.1" id="hemoglobin" placeholder="e.g. 14.2" required>
+          <div class="hint">Eligible threshold ≥ 12.5 g/dL</div>
+          <div class="error-text" data-err="hemoglobin"></div>
+        </div>
+        <div class="field">
+          <label>Blood Pressure (mmHg) <span class="req">*</span></label>
+          <div class="field-pair">
+            <input type="number" id="systolic" placeholder="Systolic (90–180)" required>
+            <input type="number" id="diastolic" placeholder="Diastolic (50–100)" required>
+          </div>
+          <div class="error-text" data-err="bp"></div>
+        </div>
+        <div class="field full">
+          <label>Health Notes</label>
+          <textarea id="notes" rows="3" placeholder="Chronic conditions, medications, allergies... (optional)"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="submit" id="submitBtn">Save Registration</button>
+          <span class="status-msg" id="formStatus"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ MONITORING VIEW ============ -->
+  <section class="view" id="view-monitor">
+    <div class="pulse-wrap">
+      <span class="dot"></span>
+      <svg class="pulse-line" viewBox="0 0 400 26" preserveAspectRatio="none"><polyline points="0,13 40,13 55,4 70,24 85,2 100,13 400,13" fill="none" stroke="#B3122C" stroke-width="1.6"/></svg>
+      <span class="live-badge"><span class="d"></span> LIVE — refreshing every 5s</span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat"><div class="num mono" id="statTotal">0</div><div class="lbl">Total Registered Donors</div></div>
+      <div class="stat"><div class="num mono" id="statToday">0</div><div class="lbl">Registered Today</div></div>
+      <div class="stat ok-stat"><div class="num mono" id="statEligible">0</div><div class="lbl">Eligible for Donation</div></div>
+      <div class="stat warn-stat"><div class="num mono" id="statFlagged">0</div><div class="lbl">Flagged / Deferred</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Blood Type Distribution</h2>
+        <p class="sub">Share of each ABO/Rh type among registered donors</p>
+        <div class="chart-row" id="bloodChart"></div>
+      </div>
+      <div class="card">
+        <h2>Donation Type Split</h2>
+        <p class="sub">Regular vs. therapeutic registrations</p>
+        <div class="chart-row" id="typeChart"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Registration Log</h2>
+      <p class="sub">Search, filter, export, or remove individual records</p>
+      <div class="table-toolbar">
+        <input type="text" id="searchBox" placeholder="Search by name, ID, or phone...">
+        <select id="filterType">
+          <option value="">All types</option>
+          <option value="Regular">Regular only</option>
+          <option value="Therapeutic">Therapeutic only</option>
+        </select>
+        <select id="filterStatus">
+          <option value="">All statuses</option>
+          <option value="eligible">Eligible only</option>
+          <option value="flagged">Flagged only</option>
+        </select>
+        <button class="btn-ghost" id="exportBtn">Export CSV</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Blood</th>
+              <th>Hb / BP</th>
+              <th>Status</th>
+              <th>Registered</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="registryBody">
+            <tr><td colspan="7" class="empty">No registrations yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const STORAGE_KEY = 'hemotrack-donor-registry';
+const BLOOD_TYPES = ['O+','O-','A+','A-','B+','B-','AB+','AB-'];
+
+// ---------- Tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    if(btn.dataset.view === 'monitor') renderMonitor();
+  });
+});
+
+// ---------- Donation type toggle ----------
+document.querySelectorAll('.type-toggle .opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    document.querySelectorAll('.type-toggle .opt').forEach(o=>o.classList.remove('checked'));
+    opt.classList.add('checked');
+    opt.querySelector('input').checked = true;
+  });
+});
+
+// ---------- Storage helpers ----------
+async function loadRegistry(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, true);
+    return res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){
+    return [];
+  }
+}
+async function saveRegistry(list){
+  try{
+    const res = await window.storage.set(STORAGE_KEY, JSON.stringify(list), true);
+    return !!res;
+  }catch(e){
+    return false;
+  }
+}
+
+// ---------- Eligibility screening ----------
+function checkEligibility(d){
+  const reasons = [];
+  const age = Number(d.age), hb = Number(d.hemoglobin), sys = Number(d.systolic), dia = Number(d.diastolic), w = Number(d.weight);
+  if(age < 17 || age > 65) reasons.push('age out of range');
+  if(d.weight && w < 50) reasons.push('low weight');
+  if(hb < 12.5) reasons.push('low hemoglobin');
+  if(sys < 90 || sys > 180) reasons.push('systolic BP out of range');
+  if(dia < 50 || dia > 100) reasons.push('diastolic BP out of range');
+  return { eligible: reasons.length === 0, reasons };
+}
+
+// ---------- Validation ----------
+function setError(field, msg){
+  const el = document.querySelector('[data-err="'+field+'"]');
+  if(el) el.textContent = msg || '';
+}
+function validate(data){
+  let ok = true;
+  ['fullName','nationalId','phone','age','gender','bloodType','hemoglobin','bp'].forEach(f=>setError(f,''));
+
+  if(!data.fullName || data.fullName.trim().length < 3){
+    setError('fullName','Enter the donor\'s full name'); ok = false;
+  }
+  if(!/^\d{10}$/.test(data.nationalId)){
+    setError('nationalId','National ID must be 10 digits'); ok = false;
+  }
+  if(!/^05\d{8}$/.test(data.phone)){
+    setError('phone','Phone must start with 05 and be 10 digits'); ok = false;
+  }
+  const ageNum = Number(data.age);
+  if(!ageNum || ageNum < 17 || ageNum > 65){
+    setError('age','Allowed donor age is 17–65'); ok = false;
+  }
+  if(!data.gender){ setError('gender','Select a gender'); ok = false; }
+  if(!data.bloodType){ setError('bloodType','Select a blood type'); ok = false; }
+  if(!data.hemoglobin || Number(data.hemoglobin) <= 0){ setError('hemoglobin','Enter hemoglobin level'); ok = false; }
+  if(!data.systolic || !data.diastolic){ setError('bp','Enter both systolic and diastolic values'); ok = false; }
+
+  return ok;
+}
+
+// ---------- Form submit ----------
+const form = document.getElementById('donorForm');
+const statusEl = document.getElementById('formStatus');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  statusEl.textContent = '';
+  statusEl.className = 'status-msg';
+
+  const data = {
+    fullName: document.getElementById('fullName').value.trim(),
+    nationalId: document.getElementById('nationalId').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    age: document.getElementById('age').value.trim(),
+    gender: document.getElementById('gender').value,
+    weight: document.getElementById('weight').value.trim(),
+    donationType: document.querySelector('input[name="donationType"]:checked').value,
+    bloodType: document.getElementById('bloodType').value,
+    lastDonation: document.getElementById('lastDonation').value,
+    hemoglobin: document.getElementById('hemoglobin').value.trim(),
+    systolic: document.getElementById('systolic').value.trim(),
+    diastolic: document.getElementById('diastolic').value.trim(),
+    notes: document.getElementById('notes').value.trim(),
+  };
+
+  if(!validate(data)) return;
+
+  const elig = checkEligibility(data);
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saving...';
+
+  try{
+    const list = await loadRegistry();
+    list.push({
+      ...data,
+      id: 'D' + Date.now(),
+      eligible: elig.eligible,
+      eligibilityReasons: elig.reasons,
+      registeredAt: new Date().toISOString()
+    });
+    const saved = await saveRegistry(list);
+    if(saved){
+      if(elig.eligible){
+        statusEl.textContent = 'Registration saved — donor eligible ✓';
+        statusEl.classList.add('ok');
+      }else{
+        statusEl.textContent = 'Registration saved — flagged: ' + elig.reasons.join(', ');
+        statusEl.classList.add('warn');
+      }
+      form.reset();
+      document.querySelectorAll('.type-toggle .opt').forEach(o=>o.classList.remove('checked'));
+      document.querySelector('.type-toggle .opt[data-type="Regular"]').classList.add('checked');
+      document.querySelector('input[name="donationType"][value="Regular"]').checked = true;
+    }else{
+      throw new Error('save failed');
+    }
+  }catch(err){
+    statusEl.textContent = 'Could not save registration, please try again';
+    statusEl.classList.add('err');
+  }finally{
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Save Registration';
+  }
+});
+
+// ---------- Monitoring ----------
+function timeAgo(iso){
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 1) return 'just now';
+  if(mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs + 'h ago';
+  return new Date(iso).toLocaleDateString('en-GB');
+}
+
+async function renderMonitor(){
+  const list = await loadRegistry();
+
+  document.getElementById('statTotal').textContent = list.length;
+
+  const todayStr = new Date().toDateString();
+  const todayCount = list.filter(d => new Date(d.registeredAt).toDateString() === todayStr).length;
+  document.getElementById('statToday').textContent = todayCount;
+
+  const eligibleCount = list.filter(d => d.eligible).length;
+  const flaggedCount = list.length - eligibleCount;
+  document.getElementById('statEligible').textContent = eligibleCount;
+  document.getElementById('statFlagged').textContent = flaggedCount;
+
+  // Blood type chart
+  const btCounts = {};
+  BLOOD_TYPES.forEach(t => btCounts[t] = 0);
+  list.forEach(d => { if(btCounts[d.bloodType] !== undefined) btCounts[d.bloodType]++; });
+  const maxBt = Math.max(1, ...Object.values(btCounts));
+  document.getElementById('bloodChart').innerHTML = BLOOD_TYPES.map(t=>{
+    const c = btCounts[t];
+    const pct = Math.round((c/maxBt)*100);
+    return `<div class="bar-item">
+      <span class="type">${t}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${c ? pct : 0}%"></div></div>
+      <span class="count">${c}</span>
+    </div>`;
+  }).join('');
+
+  // Donation type chart
+  const regularCount = list.filter(d => d.donationType === 'Regular').length;
+  const therapeuticCount = list.filter(d => d.donationType === 'Therapeutic').length;
+  const maxType = Math.max(1, regularCount, therapeuticCount);
+  document.getElementById('typeChart').innerHTML = `
+    <div class="bar-item">
+      <span class="type">Regular</span>
+      <div class="bar-track"><div class="bar-fill alt" style="width:${regularCount ? Math.round((regularCount/maxType)*100) : 0}%"></div></div>
+      <span class="count">${regularCount}</span>
+    </div>
+    <div class="bar-item">
+      <span class="type">Therap.</span>
+      <div class="bar-track"><div class="bar-fill alt" style="width:${therapeuticCount ? Math.round((therapeuticCount/maxType)*100) : 0}%"></div></div>
+      <span class="count">${therapeuticCount}</span>
+    </div>
+  `;
+
+  // Table (search + filter applied on top of full list, most recent first)
+  const body = document.getElementById('registryBody');
+  const q = (document.getElementById('searchBox').value || '').trim().toLowerCase();
+  const typeFilter = document.getElementById('filterType').value;
+  const statusFilter = document.getElementById('filterStatus').value;
+
+  let filtered = [...list].sort((a,b)=> new Date(b.registeredAt) - new Date(a.registeredAt));
+  if(q){
+    filtered = filtered.filter(d =>
+      d.fullName.toLowerCase().includes(q) ||
+      d.nationalId.includes(q) ||
+      d.phone.includes(q)
+    );
+  }
+  if(typeFilter){ filtered = filtered.filter(d => d.donationType === typeFilter); }
+  if(statusFilter === 'eligible'){ filtered = filtered.filter(d => d.eligible); }
+  if(statusFilter === 'flagged'){ filtered = filtered.filter(d => !d.eligible); }
+
+  const visible = filtered.slice(0,25);
+  if(visible.length === 0){
+    body.innerHTML = '<tr><td colspan="7" class="empty">No matching registrations</td></tr>';
+  }else{
+    body.innerHTML = visible.map(d=>`
+      <tr>
+        <td style="font-family:'Manrope',sans-serif;">${d.fullName}</td>
+        <td><span class="chip ${d.donationType === 'Therapeutic' ? 'type-therapeutic' : ''}">${d.donationType || 'Regular'}</span></td>
+        <td><span class="chip">${d.bloodType}</span></td>
+        <td>${d.hemoglobin} g/dL · ${d.systolic}/${d.diastolic}</td>
+        <td><span class="chip ${d.eligible ? 'status-eligible' : 'status-flagged'}">${d.eligible ? 'Eligible' : 'Flagged'}</span></td>
+        <td>${timeAgo(d.registeredAt)}</td>
+        <td><button class="row-del" data-id="${d.id}">Remove</button></td>
+      </tr>
+    `).join('');
+
+    body.querySelectorAll('.row-del').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        if(!confirm('Remove this registration? This cannot be undone.')) return;
+        const current = await loadRegistry();
+        const updated = current.filter(d => d.id !== btn.dataset.id);
+        await saveRegistry(updated);
+        renderMonitor();
+      });
+    });
+  }
+}
+
+function exportCSV(list){
+  const headers = ['Name','National ID','Phone','Age','Gender','Weight','Donation Type','Blood Type','Hemoglobin','Systolic','Diastolic','Status','Registered At','Notes'];
+  const rows = list.map(d => [
+    d.fullName, d.nationalId, d.phone, d.age, d.gender, d.weight,
+    d.donationType, d.bloodType, d.hemoglobin, d.systolic, d.diastolic,
+    d.eligible ? 'Eligible' : 'Flagged', d.registeredAt, (d.notes || '').replace(/[\r\n,]+/g,' ')
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'hemotrack-donor-registry.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('searchBox').addEventListener('input', renderMonitor);
+document.getElementById('filterType').addEventListener('change', renderMonitor);
+document.getElementById('filterStatus').addEventListener('change', renderMonitor);
+document.getElementById('exportBtn').addEventListener('click', async ()=>{
+  const list = await loadRegistry();
+  if(list.length === 0){ alert('No registrations to export yet.'); return; }
+  exportCSV(list);
+});
+
+// Poll every 5s while monitor tab is visible (skip refresh while user is actively typing a search)
+setInterval(()=>{
+  if(document.getElementById('view-monitor').classList.contains('active') && document.activeElement.id !== 'searchBox'){
+    renderMonitor();
+  }
+}, 5000);
+
+renderMonitor();
+</script>
+
+</body>
+</html>

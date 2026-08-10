@@ -353,7 +353,7 @@
 
     <div class="card">
       <h2>Registration Log</h2>
-      <p class="sub">Search, filter, export, or remove individual records</p>
+      <p class="sub">Search, filter, export, or remove individual records. Since data is stored only in this browser, use <strong>Backup (JSON)</strong> regularly and keep the file somewhere safe — clearing browser data or switching devices will lose the registry unless you restore from a backup.</p>
       <div class="table-toolbar">
         <input type="text" id="searchBox" placeholder="Search by name, ID, or phone...">
         <select id="filterType">
@@ -367,6 +367,9 @@
           <option value="flagged">Flagged only</option>
         </select>
         <button class="btn-ghost" id="exportBtn">Export CSV</button>
+        <button class="btn-ghost" id="exportJsonBtn">Backup (JSON)</button>
+        <button class="btn-ghost" id="importJsonBtn">Restore Backup</button>
+        <input type="file" id="importFileInput" accept="application/json" style="display:none;">
       </div>
       <div style="overflow-x:auto;">
         <table>
@@ -667,6 +670,48 @@ function exportCSV(list){
   URL.revokeObjectURL(url);
 }
 
+function exportJSON(list){
+  const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const stamp = new Date().toISOString().slice(0,10);
+  a.download = `hemotrack-backup-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function importJSON(file){
+  try{
+    const text = await file.text();
+    const incoming = JSON.parse(text);
+    if(!Array.isArray(incoming)) throw new Error('not an array');
+
+    const current = await loadRegistry();
+    const replace = confirm(
+      `Found ${incoming.length} record(s) in this backup.\n\n` +
+      `Press OK to MERGE with the ${current.length} record(s) already on this device.\n` +
+      `Press Cancel to REPLACE this device's data entirely with the backup.`
+    );
+
+    let merged;
+    if(replace){
+      const existingIds = new Set(current.map(d => d.id));
+      merged = [...current, ...incoming.filter(d => !existingIds.has(d.id))];
+    }else{
+      merged = incoming;
+    }
+
+    await saveRegistry(merged);
+    alert('Backup restored successfully.');
+    renderMonitor();
+  }catch(e){
+    alert('Could not read this backup file. Make sure it is a JSON file exported from HemoTrack.');
+  }
+}
+
 document.getElementById('searchBox').addEventListener('input', renderMonitor);
 document.getElementById('filterType').addEventListener('change', renderMonitor);
 document.getElementById('filterStatus').addEventListener('change', renderMonitor);
@@ -674,6 +719,19 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
   const list = await loadRegistry();
   if(list.length === 0){ alert('No registrations to export yet.'); return; }
   exportCSV(list);
+});
+document.getElementById('exportJsonBtn').addEventListener('click', async ()=>{
+  const list = await loadRegistry();
+  if(list.length === 0){ alert('No registrations to back up yet.'); return; }
+  exportJSON(list);
+});
+document.getElementById('importJsonBtn').addEventListener('click', ()=>{
+  document.getElementById('importFileInput').click();
+});
+document.getElementById('importFileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(file) importJSON(file);
+  e.target.value = '';
 });
 
 // Poll every 5s while monitor tab is visible (skip refresh while user is actively typing a search)

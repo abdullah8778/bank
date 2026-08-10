@@ -327,8 +327,9 @@
     <div class="pulse-wrap">
       <span class="dot"></span>
       <svg class="pulse-line" viewBox="0 0 400 26" preserveAspectRatio="none"><polyline points="0,13 40,13 55,4 70,24 85,2 100,13 400,13" fill="none" stroke="#B3122C" stroke-width="1.6"/></svg>
-      <span class="live-badge"><span class="d"></span> LIVE — refreshing every 5s</span>
+      <span class="live-badge"><span class="d"></span> LIVE — refreshing every 5s · saved on this device</span>
     </div>
+    <p class="sub" style="margin:-14px 0 22px;">Registrations are stored locally in this browser. Open this page on another computer or phone and it will start its own separate registry.</p>
 
     <div class="stats-grid">
       <div class="stat"><div class="num mono" id="statTotal">0</div><div class="lbl">Total Registered Donors</div></div>
@@ -415,18 +416,21 @@ document.querySelectorAll('.type-toggle .opt').forEach(opt=>{
 });
 
 // ---------- Storage helpers ----------
+// Uses the browser's own localStorage, so this works standalone on GitHub Pages
+// (or any static host) with no backend. Data is saved per device/browser —
+// each computer or phone that opens this page keeps its own local copy.
 async function loadRegistry(){
   try{
-    const res = await window.storage.get(STORAGE_KEY, true);
-    return res && res.value ? JSON.parse(res.value) : [];
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
   }catch(e){
     return [];
   }
 }
 async function saveRegistry(list){
   try{
-    const res = await window.storage.set(STORAGE_KEY, JSON.stringify(list), true);
-    return !!res;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    return true;
   }catch(e){
     return false;
   }

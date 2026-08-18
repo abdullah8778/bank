@@ -9,28 +9,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
-    --navy-950:#0A1628;
-    --navy-900:#0F1E36;
-    --navy-800:#152A47;
-    --navy-700:#1C3459;
-    --paper:#F6F3EC;
-    --blood:#B3122C;
-    --blood-bright:#E13E52;
-    --gold:#C9A227;
-    --muted:#8592A6;
-    --line:rgba(255,255,255,0.09);
-    --ok:#3FAE68;
-    --warn:#E0A030;
-    --ai:#5BA8E0;
-    --ai-bright:#7FC4FF;
+    --navy-950:#0A1628; --navy-900:#0F1E36; --navy-800:#152A47; --navy-700:#1C3459;
+    --paper:#F6F3EC; --blood:#B3122C; --blood-bright:#E13E52; --gold:#C9A227;
+    --muted:#8592A6; --line:rgba(255,255,255,0.09);
+    --ok:#3FAE68; --warn:#E0A030; --ai:#5BA8E0; --ai-bright:#7FC4FF;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{height:100%;}
   body{
-    background:var(--navy-950);
-    color:var(--paper);
-    font-family:'Manrope',sans-serif;
-    min-height:100vh;
+    background:var(--navy-950); color:var(--paper); font-family:'Manrope',sans-serif; min-height:100vh;
     background-image:
       radial-gradient(circle at 15% 0%, rgba(179,18,44,0.14), transparent 45%),
       radial-gradient(circle at 85% 100%, rgba(201,162,39,0.08), transparent 40%);
@@ -38,13 +25,9 @@
   .mono{font-family:'IBM Plex Mono',monospace;}
 
   header{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:22px clamp(16px,4vw,48px);
-    border-bottom:1px solid var(--line);
-    position:sticky; top:0; z-index:20;
-    background:rgba(10,22,40,0.85);
-    backdrop-filter:blur(10px);
-    flex-wrap:wrap; gap:14px;
+    display:flex; align-items:center; justify-content:space-between; padding:22px clamp(16px,4vw,48px);
+    border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20;
+    background:rgba(10,22,40,0.85); backdrop-filter:blur(10px); flex-wrap:wrap; gap:14px;
   }
   .brand{display:flex; align-items:center; gap:12px;}
   .brand svg{width:34px; height:34px; flex-shrink:0;}
@@ -56,17 +39,16 @@
     padding:2px 7px; border-radius:20px;
   }
 
-  .tabs{display:flex; gap:6px; background:var(--navy-900); border:1px solid var(--line); border-radius:12px; padding:4px;}
+  .tabs{display:flex; gap:6px; background:var(--navy-900); border:1px solid var(--line); border-radius:12px; padding:4px; flex-wrap:wrap;}
   .tab-btn{
-    border:none; background:transparent; color:var(--muted); cursor:pointer;
-    font-family:'Manrope',sans-serif; font-weight:700; font-size:14px;
-    padding:9px 18px; border-radius:9px; transition:.2s; white-space:nowrap;
+    border:none; background:transparent; color:var(--muted); cursor:pointer; font-family:'Manrope',sans-serif;
+    font-weight:700; font-size:13.5px; padding:9px 16px; border-radius:9px; transition:.2s; white-space:nowrap;
   }
   .tab-btn.active{background:var(--blood); color:#fff; box-shadow:0 4px 14px rgba(179,18,44,.35);}
-  .tab-btn[data-view="ai"].active{background:var(--ai); box-shadow:0 4px 14px rgba(91,168,224,.35);}
+  .tab-btn[data-view="engine"].active{background:var(--ai); box-shadow:0 4px 14px rgba(91,168,224,.35);}
   .tab-btn:not(.active):hover{color:var(--paper);}
 
-  main{max-width:1140px; margin:0 auto; padding:36px clamp(16px,4vw,48px) 80px;}
+  main{max-width:1160px; margin:0 auto; padding:36px clamp(16px,4vw,48px) 80px;}
   .view{display:none; animation:fade .35s ease;}
   .view.active{display:block;}
   @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
@@ -74,23 +56,14 @@
   .pulse-wrap{display:flex; align-items:center; gap:14px; margin:0 0 30px;}
   .pulse-wrap .dot{width:8px; height:8px; border-radius:50%; background:var(--blood-bright); box-shadow:0 0 0 0 rgba(225,62,82,.6); animation:ping 1.8s infinite;}
   .pulse-wrap .dot.ai-dot{background:var(--ai-bright); animation:pingAi 1.8s infinite;}
-  @keyframes ping{
-    0%{box-shadow:0 0 0 0 rgba(225,62,82,.55);}
-    70%{box-shadow:0 0 0 9px rgba(225,62,82,0);}
-    100%{box-shadow:0 0 0 0 rgba(225,62,82,0);}
-  }
-  @keyframes pingAi{
-    0%{box-shadow:0 0 0 0 rgba(123,196,255,.55);}
-    70%{box-shadow:0 0 0 9px rgba(123,196,255,0);}
-    100%{box-shadow:0 0 0 0 rgba(123,196,255,0);}
-  }
+  @keyframes ping{0%{box-shadow:0 0 0 0 rgba(225,62,82,.55);} 70%{box-shadow:0 0 0 9px rgba(225,62,82,0);} 100%{box-shadow:0 0 0 0 rgba(225,62,82,0);}}
+  @keyframes pingAi{0%{box-shadow:0 0 0 0 rgba(123,196,255,.55);} 70%{box-shadow:0 0 0 9px rgba(123,196,255,0);} 100%{box-shadow:0 0 0 0 rgba(123,196,255,0);}}
   .pulse-line{flex:1; height:26px;}
   .pulse-label{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:1.5px; white-space:nowrap;}
 
   .card{
-    background:linear-gradient(180deg, var(--navy-900), var(--navy-800));
-    border:1px solid var(--line); border-radius:18px;
-    padding:clamp(20px,3vw,34px);
+    background:linear-gradient(180deg, var(--navy-900), var(--navy-800)); border:1px solid var(--line);
+    border-radius:18px; padding:clamp(20px,3vw,34px);
   }
   .card + .card{margin-top:22px;}
   .card h2{font-size:16px; font-weight:800; margin-bottom:4px; display:flex; align-items:center; gap:8px;}
@@ -103,9 +76,8 @@
   label{font-size:12.5px; font-weight:700; color:var(--paper);}
   label .req{color:var(--blood-bright); margin-inline-start:2px;}
   input, select, textarea{
-    background:var(--navy-950); border:1px solid var(--line); border-radius:10px;
-    padding:11px 13px; color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:13.5px;
-    outline:none; transition:.15s; width:100%;
+    background:var(--navy-950); border:1px solid var(--line); border-radius:10px; padding:11px 13px;
+    color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:13.5px; outline:none; transition:.15s; width:100%;
   }
   input::placeholder, textarea::placeholder{color:#4C596E; font-family:'Manrope',sans-serif;}
   input:focus, select:focus, textarea:focus{border-color:var(--blood-bright); box-shadow:0 0 0 3px rgba(225,62,82,.15);}
@@ -115,25 +87,24 @@
 
   .section-label{
     grid-column:1/-1; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--gold);
-    text-transform:uppercase; margin-top:6px; padding-top:14px; border-top:1px solid var(--line);
-    font-family:'IBM Plex Mono',monospace;
+    text-transform:uppercase; margin-top:6px; padding-top:14px; border-top:1px solid var(--line); font-family:'IBM Plex Mono',monospace;
   }
   .section-label:first-of-type{border-top:none; padding-top:0; margin-top:0;}
 
   .type-toggle{display:flex; gap:10px;}
   .type-toggle label.opt{
-    flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
-    border:1px solid var(--line); border-radius:10px; padding:11px; cursor:pointer;
-    font-size:13px; font-weight:700; color:var(--muted); background:var(--navy-950); transition:.15s;
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px; border:1px solid var(--line);
+    border-radius:10px; padding:11px; cursor:pointer; font-size:13px; font-weight:700; color:var(--muted);
+    background:var(--navy-950); transition:.15s;
   }
   .type-toggle input{width:auto; display:none;}
   .type-toggle label.opt.checked{border-color:var(--blood-bright); color:#fff; background:rgba(179,18,44,.15);}
 
   .btn-row{grid-column:1/-1; display:flex; align-items:center; gap:14px; margin-top:6px; flex-wrap:wrap;}
   button.submit{
-    background:var(--blood); color:#fff; border:none; border-radius:11px;
-    padding:14px 30px; font-family:'Manrope',sans-serif; font-weight:800; font-size:14.5px;
-    cursor:pointer; transition:.2s; box-shadow:0 8px 20px rgba(179,18,44,.3);
+    background:var(--blood); color:#fff; border:none; border-radius:11px; padding:14px 30px;
+    font-family:'Manrope',sans-serif; font-weight:800; font-size:14.5px; cursor:pointer; transition:.2s;
+    box-shadow:0 8px 20px rgba(179,18,44,.3);
   }
   button.submit:hover{background:var(--blood-bright); transform:translateY(-1px);}
   button.submit:disabled{opacity:.55; cursor:not-allowed; transform:none;}
@@ -142,11 +113,9 @@
   .status-msg.warn{color:var(--warn);}
   .status-msg.err{color:var(--blood-bright);}
 
-  /* AI Screening result panel */
   .ai-panel{
     grid-column:1/-1; display:none; margin-top:4px; border:1px solid rgba(91,168,224,.35);
-    background:linear-gradient(180deg, rgba(91,168,224,.08), rgba(91,168,224,.02));
-    border-radius:14px; padding:20px 22px;
+    background:linear-gradient(180deg, rgba(91,168,224,.08), rgba(91,168,224,.02)); border-radius:14px; padding:20px 22px;
   }
   .ai-panel.show{display:block; animation:fade .3s ease;}
   .ai-panel-head{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
@@ -161,18 +130,14 @@
   .meter-track{background:var(--navy-950); border:1px solid var(--line); border-radius:8px; height:10px; overflow:hidden; margin-bottom:14px;}
   .meter-fill{height:100%; border-radius:8px; transition:width .6s ease;}
   .reason-list{list-style:none; display:flex; flex-direction:column; gap:8px;}
-  .reason-list li{
-    font-size:12.5px; color:var(--paper); padding-inline-start:18px; position:relative; line-height:1.5;
-  }
+  .reason-list li{font-size:12.5px; color:var(--paper); padding-inline-start:18px; position:relative; line-height:1.5;}
   .reason-list li::before{content:'—'; position:absolute; inset-inline-start:0; color:var(--ai-bright);}
   .ai-disclaimer{font-size:10.5px; color:var(--muted); margin-top:14px; padding-top:12px; border-top:1px solid var(--line); line-height:1.5;}
 
   .stats-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px;}
   .stats-grid.secondary{grid-template-columns:repeat(3,1fr);}
-  .stat{
-    background:var(--navy-900); border:1px solid var(--line); border-radius:14px; padding:18px 20px;
-    position:relative; overflow:hidden;
-  }
+  .stats-grid.quad{grid-template-columns:repeat(4,1fr);}
+  .stat{background:var(--navy-900); border:1px solid var(--line); border-radius:14px; padding:18px 20px; position:relative; overflow:hidden;}
   .stat::before{content:''; position:absolute; inset-inline-start:0; top:0; bottom:0; width:3px; background:var(--blood);}
   .stat.ok-stat::before{background:var(--ok);}
   .stat.warn-stat::before{background:var(--warn);}
@@ -185,7 +150,7 @@
 
   .chart-row{display:flex; flex-direction:column; gap:10px;}
   .bar-item{display:grid; grid-template-columns:56px 1fr 44px; align-items:center; gap:12px;}
-  .bar-item.wide{grid-template-columns:120px 1fr 40px;}
+  .bar-item.wide{grid-template-columns:132px 1fr 40px;}
   .bar-item .type{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--gold);}
   .bar-item .type.small{font-size:11.5px; font-weight:500; color:var(--paper); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .bar-track{background:var(--navy-950); border:1px solid var(--line); border-radius:6px; height:16px; overflow:hidden;}
@@ -195,16 +160,10 @@
   .bar-item .count{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted); text-align:right;}
 
   table{width:100%; border-collapse:collapse; font-size:13px;}
-  thead th{
-    text-align:left; font-size:11px; color:var(--muted); font-weight:700;
-    padding:10px 12px; border-bottom:1px solid var(--line); letter-spacing:.5px;
-  }
+  thead th{text-align:left; font-size:11px; color:var(--muted); font-weight:700; padding:10px 12px; border-bottom:1px solid var(--line); letter-spacing:.5px;}
   tbody td{padding:12px; border-bottom:1px solid var(--line); font-family:'IBM Plex Mono',monospace; font-size:12.5px;}
   tbody tr:hover{background:rgba(255,255,255,0.03);}
-  .chip{
-    display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:700;
-    background:rgba(179,18,44,.18); color:var(--blood-bright); border:1px solid rgba(179,18,44,.4);
-  }
+  .chip{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:700; background:rgba(179,18,44,.18); color:var(--blood-bright); border:1px solid rgba(179,18,44,.4);}
   .chip.type-therapeutic{background:rgba(201,162,39,.15); color:var(--gold); border-color:rgba(201,162,39,.4);}
   .chip.status-eligible{background:rgba(63,174,104,.15); color:var(--ok); border-color:rgba(63,174,104,.4);}
   .chip.status-flagged{background:rgba(224,160,48,.15); color:var(--warn); border-color:rgba(224,160,48,.4);}
@@ -217,23 +176,16 @@
   .table-toolbar input[type="text"]{flex:1; min-width:180px;}
   .table-toolbar select{width:auto; min-width:120px;}
   .btn-ghost{
-    background:transparent; border:1px solid var(--line); color:var(--paper);
-    border-radius:10px; padding:11px 16px; font-family:'Manrope',sans-serif; font-weight:700; font-size:13px;
-    cursor:pointer; transition:.15s; white-space:nowrap;
+    background:transparent; border:1px solid var(--line); color:var(--paper); border-radius:10px; padding:11px 16px;
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; cursor:pointer; transition:.15s; white-space:nowrap;
   }
   .btn-ghost:hover{border-color:var(--gold); color:var(--gold);}
-  .btn-ghost.ai-ghost:hover{border-color:var(--ai-bright); color:var(--ai-bright);}
-  .row-del{
-    background:transparent; border:1px solid rgba(225,62,82,.35); color:var(--blood-bright);
-    border-radius:8px; padding:5px 10px; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px;
-    cursor:pointer; transition:.15s;
-  }
+  .btn-ghost.ai-ghost{border-color:rgba(123,196,255,.35); color:var(--ai-bright);}
+  .btn-ghost.ai-ghost:hover{border-color:var(--ai-bright); background:rgba(123,196,255,.1);}
+  .btn-ghost.small{padding:7px 12px; font-size:11.5px;}
+  .row-del{background:transparent; border:1px solid rgba(225,62,82,.35); color:var(--blood-bright); border-radius:8px; padding:5px 10px; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; cursor:pointer; transition:.15s;}
   .row-del:hover{background:rgba(225,62,82,.15);}
-  .row-id{
-    background:transparent; border:1px solid rgba(123,196,255,.35); color:var(--ai-bright);
-    border-radius:8px; padding:5px 10px; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px;
-    cursor:pointer; transition:.15s; margin-inline-end:6px;
-  }
+  .row-id{background:transparent; border:1px solid rgba(123,196,255,.35); color:var(--ai-bright); border-radius:8px; padding:5px 10px; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px; cursor:pointer; transition:.15s; margin-inline-end:6px;}
   .row-id:hover{background:rgba(123,196,255,.15);}
   .score-cell{display:flex; align-items:center; gap:8px;}
   .score-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
@@ -241,31 +193,44 @@
   .score-dot.med{background:var(--warn);}
   .score-dot.high{background:var(--blood-bright);}
 
-  /* AI Insights tab */
   .insight-list{list-style:none; display:flex; flex-direction:column; gap:10px;}
-  .insight-list li{
-    display:flex; justify-content:space-between; gap:12px; font-size:12.5px; padding:10px 12px;
-    background:var(--navy-950); border:1px solid var(--line); border-radius:10px;
-  }
+  .insight-list li{display:flex; justify-content:space-between; gap:12px; font-size:12.5px; padding:10px 12px; background:var(--navy-950); border:1px solid var(--line); border-radius:10px;}
   .insight-list li .name{font-weight:700;}
   .insight-list li .meta{color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
-  .sparkline-wrap{display:flex; flex-direction:column; gap:8px;}
-  .flag-freq{display:flex; flex-direction:column; gap:10px;}
 
-  /* Modal */
-  .modal-overlay{
-    display:none; position:fixed; inset:0; background:rgba(4,10,20,.72); backdrop-filter:blur(4px);
-    z-index:100; align-items:center; justify-content:center; padding:20px;
-  }
+  /* Guideline / weight editor */
+  .weight-row{display:grid; grid-template-columns:1fr 90px 120px; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .weight-row:last-child{border-bottom:none;}
+  .weight-row .wlabel{font-size:12.5px; font-weight:700;}
+  .weight-row .wdefault{font-size:10.5px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+  .weight-row input[type="number"]{padding:8px 10px; font-size:13px;}
+  .weight-bar-track{background:var(--navy-950); border:1px solid var(--line); border-radius:6px; height:8px; overflow:hidden;}
+  .weight-bar-fill{height:100%; background:linear-gradient(90deg,#2E6A93,var(--ai-bright)); border-radius:6px; transition:width .4s ease;}
+
+  /* Training queue */
+  .queue-item{border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--navy-950); margin-bottom:10px;}
+  .queue-item-head{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;}
+  .queue-item-head .qname{font-weight:700; font-size:13.5px;}
+  .queue-item-head .qmeta{font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+  .queue-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .qbtn{border-radius:8px; padding:7px 12px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:'Manrope',sans-serif; transition:.15s; border:1px solid var(--line); background:transparent; color:var(--paper);}
+  .qbtn.agree{border-color:rgba(63,174,104,.4); color:var(--ok);}
+  .qbtn.agree:hover{background:rgba(63,174,104,.12);}
+  .qbtn.elig{border-color:rgba(123,196,255,.4); color:var(--ai-bright);}
+  .qbtn.elig:hover{background:rgba(123,196,255,.12);}
+  .qbtn.flag{border-color:rgba(225,62,82,.4); color:var(--blood-bright);}
+  .qbtn.flag:hover{background:rgba(225,62,82,.12);}
+
+  .tuning-log{list-style:none; display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto;}
+  .tuning-log li{font-size:11.5px; font-family:'IBM Plex Mono',monospace; color:var(--muted); padding:6px 0; border-bottom:1px dashed var(--line);}
+  .tuning-log li:last-child{border-bottom:none;}
+  .tuning-log li .up{color:var(--warn);}
+  .tuning-log li .down{color:var(--ok);}
+
+  .modal-overlay{display:none; position:fixed; inset:0; background:rgba(4,10,20,.72); backdrop-filter:blur(4px); z-index:100; align-items:center; justify-content:center; padding:20px;}
   .modal-overlay.show{display:flex;}
-  .modal-card{
-    background:linear-gradient(180deg, var(--navy-900), var(--navy-800)); border:1px solid var(--line);
-    border-radius:18px; padding:28px; max-width:340px; width:100%; text-align:center; position:relative;
-  }
-  .modal-close{
-    position:absolute; top:14px; inset-inline-end:14px; background:none; border:none; color:var(--muted);
-    font-size:18px; cursor:pointer; line-height:1;
-  }
+  .modal-card{background:linear-gradient(180deg, var(--navy-900), var(--navy-800)); border:1px solid var(--line); border-radius:18px; padding:28px; max-width:340px; width:100%; text-align:center; position:relative;}
+  .modal-close{position:absolute; top:14px; inset-inline-end:14px; background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer; line-height:1;}
   .modal-close:hover{color:var(--paper);}
   #qrContainer{display:flex; align-items:center; justify-content:center; background:var(--paper); border-radius:12px; padding:14px; margin:16px auto;}
   .card-donor-name{font-size:16px; font-weight:800; margin-top:4px;}
@@ -278,13 +243,13 @@
     form{grid-template-columns:1fr;}
     .field-pair{grid-template-columns:1fr;}
     .stats-grid{grid-template-columns:repeat(2,1fr);}
-    .stats-grid.secondary{grid-template-columns:1fr;}
+    .stats-grid.secondary, .stats-grid.quad{grid-template-columns:1fr 1fr;}
     header{flex-direction:column; gap:14px; align-items:stretch;}
     .tabs{justify-content:center;}
     table{font-size:11.5px;}
     thead th:nth-child(4), tbody td:nth-child(4){display:none;}
+    .weight-row{grid-template-columns:1fr; gap:6px;}
   }
-
   @media print{
     header, .tabs, .table-toolbar, .btn-row, .modal-actions, .modal-close{display:none !important;}
     body{background:#fff; color:#000;}
@@ -300,14 +265,14 @@
       <circle cx="16" cy="24" r="3.2" fill="#F6F3EC" opacity="0.35"/>
     </svg>
     <div class="brand-text">
-      <h1>HemoTrack AI <span class="ai-tag">AI-ASSISTED</span></h1>
-      <span>DONOR REGISTRATION · SCREENING · MONITORING</span>
+      <h1>HemoTrack AI <span class="ai-tag">SELF-TUNING</span></h1>
+      <span>DONOR REGISTRATION · SCREENING · LEARNING ENGINE</span>
     </div>
   </div>
   <div class="tabs">
     <button class="tab-btn active" data-view="register">Register</button>
     <button class="tab-btn" data-view="monitor">Live Monitor</button>
-    <button class="tab-btn" data-view="ai">AI Insights</button>
+    <button class="tab-btn" data-view="engine">AI Engine</button>
   </div>
 </header>
 
@@ -323,10 +288,9 @@
 
     <div class="card">
       <h2>Donor Intake Form</h2>
-      <p class="sub">Fields marked <span style="color:var(--blood-bright)">*</span> are required. Every registration is screened automatically by the AI-assisted decision-support engine below.</p>
+      <p class="sub">Fields marked <span style="color:var(--blood-bright)">*</span> are required. Every registration is screened by the engine using its current guideline weights — tune or train it from the <strong>AI Engine</strong> tab.</p>
 
       <form id="donorForm" novalidate>
-
         <div class="section-label">Identity</div>
         <div class="field">
           <label>Full Name <span class="req">*</span></label>
@@ -373,7 +337,7 @@
               <input type="radio" name="donationType" value="Therapeutic"> Therapeutic Donation
             </label>
           </div>
-          <div class="hint">Therapeutic = medically indicated phlebotomy (e.g. polycythemia, hemochromatosis), not routed for standard transfusion release. Regular donations are auto-checked against the minimum inter-donation interval.</div>
+          <div class="hint">Therapeutic = medically indicated phlebotomy, not routed for standard transfusion release. Regular donations are auto-checked against the minimum inter-donation interval.</div>
         </div>
         <div class="field">
           <label>Blood Type (ABO/Rh) <span class="req">*</span></label>
@@ -389,7 +353,7 @@
         <div class="field">
           <label>Last Donation Date</label>
           <input type="date" id="lastDonation">
-          <div class="hint">Leave blank if this is a first-time donation. The engine also checks this device's own registry history for the same ID.</div>
+          <div class="hint">Leave blank if first-time. The engine also checks this device's own history for the same ID.</div>
         </div>
 
         <div class="section-label">Clinical Screening</div>
@@ -417,7 +381,6 @@
           <span class="status-msg" id="formStatus"></span>
         </div>
 
-        <!-- AI Screening Result Panel -->
         <div class="ai-panel" id="aiPanel">
           <div class="ai-panel-head">
             <div class="title">
@@ -431,7 +394,7 @@
           </div>
           <div class="meter-track"><div class="meter-fill" id="aiMeterFill" style="width:0%"></div></div>
           <ul class="reason-list" id="aiReasonList"></ul>
-          <div class="ai-disclaimer">This is a rule-based decision-support summary generated on-device from the values entered above (thresholds, interval history, and keyword scan of health notes). It is not a diagnostic tool and does not replace clinical judgment — a qualified staff member must confirm final eligibility.</div>
+          <div class="ai-disclaimer">This is a transparent, rule-based decision-support summary — not a diagnostic tool. It uses the guideline weights currently set in the AI Engine tab, which can be tuned manually or trained from staff feedback. A qualified staff member must confirm final eligibility.</div>
         </div>
       </form>
     </div>
@@ -473,7 +436,7 @@
 
     <div class="card">
       <h2>Registration Log</h2>
-      <p class="sub">Search, filter, export, print donor ID cards, or remove individual records. Since data is stored only in this browser, use <strong>Backup (JSON)</strong> regularly and keep the file somewhere safe — clearing browser data or switching devices will lose the registry unless you restore from a backup.</p>
+      <p class="sub">Search, filter, export, print donor ID cards, or remove individual records. Use <strong>Backup Engine (JSON)</strong> regularly — it saves the registry, guideline weights, and training history together — and keep the file somewhere safe.</p>
       <div class="table-toolbar">
         <input type="text" id="searchBox" placeholder="Search by name, ID, or phone...">
         <select id="filterType">
@@ -487,22 +450,15 @@
           <option value="flagged">Flagged only</option>
         </select>
         <button class="btn-ghost" id="exportBtn">Export CSV</button>
-        <button class="btn-ghost" id="exportJsonBtn">Backup (JSON)</button>
-        <button class="btn-ghost" id="importJsonBtn">Restore Backup</button>
+        <button class="btn-ghost ai-ghost" id="exportJsonBtn">Backup Engine (JSON)</button>
+        <button class="btn-ghost ai-ghost" id="importJsonBtn">Restore Backup</button>
         <input type="file" id="importFileInput" accept="application/json" style="display:none;">
       </div>
       <div style="overflow-x:auto;">
         <table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Blood</th>
-              <th>Hb / BP</th>
-              <th>Status</th>
-              <th>AI Score</th>
-              <th>Registered</th>
-              <th></th>
+              <th>Name</th><th>Type</th><th>Blood</th><th>Hb / BP</th><th>Status</th><th>AI Score</th><th>Registered</th><th></th>
             </tr>
           </thead>
           <tbody id="registryBody">
@@ -513,12 +469,43 @@
     </div>
   </section>
 
-  <!-- ============ AI INSIGHTS VIEW ============ -->
-  <section class="view" id="view-ai">
+  <!-- ============ AI ENGINE VIEW ============ -->
+  <section class="view" id="view-engine">
     <div class="pulse-wrap">
       <span class="dot ai-dot"></span>
       <svg class="pulse-line" viewBox="0 0 400 26" preserveAspectRatio="none"><polyline points="0,13 40,13 55,4 70,24 85,2 100,13 400,13" fill="none" stroke="#5BA8E0" stroke-width="1.6"/></svg>
-      <span class="pulse-label" style="color:var(--ai-bright)">AI ENGINE · SCREENING & INTERVAL ANALYTICS</span>
+      <span class="pulse-label" style="color:var(--ai-bright)">SELF-TUNING SCREENING ENGINE · v<span id="engineVersion">1</span></span>
+    </div>
+
+    <div class="stats-grid quad">
+      <div class="stat ai-stat"><div class="num mono" id="statEngineAdjustments">0</div><div class="lbl">Self-Tuning Adjustments</div></div>
+      <div class="stat ai-stat"><div class="num mono" id="statFeedbackCount">0</div><div class="lbl">Training Examples Logged</div></div>
+      <div class="stat ok-stat"><div class="num mono" id="statAgreementRate">—</div><div class="lbl">Staff Agreement Rate</div></div>
+      <div class="stat"><div class="num mono" id="statPendingQueue">0</div><div class="lbl">Awaiting Staff Review</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Guidelines — Scoring Weights</h2>
+        <p class="sub">The points each factor subtracts from the 100% confidence score. Edit directly to set your own guideline, or let the training queue adjust these automatically. Each weight is bounded so it can never drift outside a safe 40%–170% range of its default.</p>
+        <div id="weightEditor"></div>
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn-ghost ai-ghost" id="saveWeightsBtn">Save Guidelines</button>
+          <button class="btn-ghost" id="resetWeightsBtn">Reset to Default</button>
+          <span class="status-msg" id="weightStatus"></span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Self-Tuning Log</h2>
+        <p class="sub">Every automatic weight adjustment made from staff feedback, most recent first</p>
+        <ul class="tuning-log" id="tuningLog"><li>No adjustments yet.</li></ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Training Queue — Teach the Engine</h2>
+      <p class="sub">Recent registrations awaiting a staff decision. Confirming or overriding an assessment is how the engine learns: an override nudges the weight of whichever factor(s) triggered that assessment, up or down, within the bounded range above.</p>
+      <div id="trainingQueue"><p class="hint">No pending registrations.</p></div>
     </div>
 
     <div class="two-col">
@@ -529,7 +516,7 @@
       </div>
       <div class="card">
         <h2>Most Frequent Review Flags</h2>
-        <p class="sub">Reasons the AI engine most often raises for manual review</p>
+        <p class="sub">Reasons the engine most often raises for manual review</p>
         <div class="flag-freq" id="flagFreq"><p class="hint">No flags recorded yet.</p></div>
       </div>
     </div>
@@ -541,14 +528,13 @@
     </div>
 
     <div class="card">
-      <h2>About the AI Engine</h2>
-      <p class="sub" style="margin-bottom:0;">HemoTrack's screening engine is a transparent, rule-based scoring model (v1.2) — not a machine-learning or diagnostic system. It combines four automated checks: (1) clinical thresholds for hemoglobin, blood pressure, age, and weight; (2) the minimum inter-donation interval calculated from this device's own donation history; (3) a keyword scan of free-text health notes flagging terms that warrant clinician attention; and (4) a 0–100 confidence score summarizing the above for faster staff triage. All logic runs locally in the browser — no data is sent anywhere.</p>
+      <h2>How the Engine Works</h2>
+      <p class="sub" style="margin-bottom:0;">HemoTrack's engine is a transparent, rule-based weighted scoring model — not a black-box or deep-learning system. It runs four checks: clinical thresholds (hemoglobin, blood pressure, age, weight), the minimum inter-donation interval from this device's own history, a keyword scan of free-text health notes, and a 0–100 confidence score combining all four. Every weight above started from a clinical default and moves only in small, bounded steps — either typed in directly under Guidelines, or nudged automatically each time staff confirm or override an assessment in the Training Queue. Everything runs and is stored locally in this browser; nothing is sent to a server.</p>
     </div>
   </section>
 
 </main>
 
-<!-- Donor ID Card Modal -->
 <div class="modal-overlay" id="idCardModal">
   <div class="modal-card">
     <button class="modal-close" id="modalCloseBtn">&times;</button>
@@ -556,17 +542,35 @@
     <div class="card-donor-name" id="cardName">—</div>
     <div class="card-donor-id mono" id="cardId">—</div>
     <div class="card-donor-meta mono" id="cardMeta">—</div>
-    <div class="modal-actions">
-      <button class="btn-ghost" id="printCardBtn">Print</button>
-    </div>
+    <div class="modal-actions"><button class="btn-ghost" id="printCardBtn">Print</button></div>
   </div>
 </div>
 
 <script>
 const STORAGE_KEY = 'hemotrack-donor-registry';
+const CONFIG_KEY = 'hemotrack-ai-config';
+const FEEDBACK_KEY = 'hemotrack-ai-feedback';
 const BLOOD_TYPES = ['O+','O-','A+','A-','B+','B-','AB+','AB-'];
-const MIN_INTERVAL_DAYS = 56; // minimum interval between Regular whole-blood donations
+const MIN_INTERVAL_DAYS = 56;
 const NOTE_KEYWORDS = ['diabet','anemi','pregnan','medication','aspirin','warfarin','anticoagul','allerg','hiv','hepatit','malaria','travel','asthma','epileps','heart','cardiac','cancer','tuberc','surgery','transfus'];
+
+const DEFAULT_WEIGHTS = {
+  hemoglobinLow: 30, hemoglobinNear: 8,
+  systolic: 20, diastolic: 20,
+  age: 25, weight: 15,
+  interval: 25, notesPerFlag: 10
+};
+const WEIGHT_LABELS = {
+  hemoglobinLow: 'Hemoglobin below 12.5 g/dL',
+  hemoglobinNear: 'Hemoglobin near threshold (12.5–13)',
+  systolic: 'Systolic BP out of range',
+  diastolic: 'Diastolic BP out of range',
+  age: 'Age outside 17–65',
+  weight: 'Weight below 50 kg',
+  interval: 'Donation interval not met',
+  notesPerFlag: 'Per health-note keyword flagged'
+};
+const STEP = 2; // points nudged per training feedback event
 
 // ---------- Tabs ----------
 document.querySelectorAll('.tab-btn').forEach(btn=>{
@@ -576,7 +580,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('view-'+btn.dataset.view).classList.add('active');
     if(btn.dataset.view === 'monitor') renderMonitor();
-    if(btn.dataset.view === 'ai') renderAIInsights();
+    if(btn.dataset.view === 'engine') renderEngineView();
   });
 });
 
@@ -589,26 +593,40 @@ document.querySelectorAll('.type-toggle .opt').forEach(opt=>{
   });
 });
 
-// ---------- Storage helpers ----------
-// Uses the browser's own localStorage, so this works standalone on GitHub Pages
-// (or any static host) with no backend. Data is saved per device/browser —
-// each computer or phone that opens this page keeps its own local copy.
+// ---------- Storage: registry ----------
 async function loadRegistry(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  }catch(e){
-    return [];
-  }
+  try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; }catch(e){ return []; }
 }
 async function saveRegistry(list){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    return true;
-  }catch(e){
-    return false;
-  }
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return true; }catch(e){ return false; }
 }
+
+// ---------- Storage: engine config (guidelines / learned weights) ----------
+function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+function loadAIConfig(){
+  try{
+    const raw = localStorage.getItem(CONFIG_KEY);
+    if(!raw) return { weights: {...DEFAULT_WEIGHTS}, adjustments: 0, version: 1, log: [] };
+    const parsed = JSON.parse(raw);
+    return {
+      weights: { ...DEFAULT_WEIGHTS, ...(parsed.weights||{}) },
+      adjustments: parsed.adjustments || 0,
+      version: parsed.version || 1,
+      log: parsed.log || []
+    };
+  }catch(e){ return { weights: {...DEFAULT_WEIGHTS}, adjustments: 0, version: 1, log: [] }; }
+}
+function saveAIConfig(config){ localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); }
+function weightBounds(key){
+  const def = DEFAULT_WEIGHTS[key];
+  return { min: Math.round(def*0.4), max: Math.round(def*1.7) };
+}
+
+// ---------- Storage: training feedback ----------
+async function loadFeedback(){
+  try{ const raw = localStorage.getItem(FEEDBACK_KEY); return raw ? JSON.parse(raw) : []; }catch(e){ return []; }
+}
+async function saveFeedback(list){ localStorage.setItem(FEEDBACK_KEY, JSON.stringify(list)); }
 
 // ---------- Eligibility screening (hard clinical rules) ----------
 function checkEligibility(d){
@@ -623,12 +641,9 @@ function checkEligibility(d){
 }
 
 // ---------- Interval automation ----------
-function daysBetween(d1, d2){
-  return Math.floor((d2.getTime() - d1.getTime()) / 86400000);
-}
+function daysBetween(d1, d2){ return Math.floor((d2.getTime() - d1.getTime()) / 86400000); }
 function findPriorDonation(nationalId, list, excludeId){
-  return list
-    .filter(d => d.nationalId === nationalId && d.id !== excludeId)
+  return list.filter(d => d.nationalId === nationalId && d.id !== excludeId)
     .sort((a,b) => new Date(b.registeredAt) - new Date(a.registeredAt))[0] || null;
 }
 function intervalCheck(donationType, priorDonation){
@@ -638,46 +653,49 @@ function intervalCheck(donationType, priorDonation){
   return { ok: daysRemaining === 0, daysSince, daysRemaining };
 }
 
-// ---------- NLP-style keyword scan on free-text notes ----------
+// ---------- NLP-style keyword scan ----------
 function scanNotes(notes){
   if(!notes) return [];
   const lower = notes.toLowerCase();
   return NOTE_KEYWORDS.filter(k => lower.includes(k));
 }
 
-// ---------- AI screening engine (rule-based confidence score) ----------
-function computeAIAssessment(d, interval, noteFlags){
+// ---------- AI screening engine (uses live guideline weights) ----------
+function computeAIAssessment(d, interval, noteFlags, weights){
   let score = 100;
   const reasons = [];
+  const triggered = [];
   const hb = Number(d.hemoglobin), sys = Number(d.systolic), dia = Number(d.diastolic), age = Number(d.age), w = Number(d.weight);
 
-  if(hb < 12.5){ score -= 30; reasons.push(`Hemoglobin ${hb} g/dL is below the 12.5 g/dL eligibility threshold.`); }
-  else if(hb < 13){ score -= 8; reasons.push(`Hemoglobin ${hb} g/dL is close to the eligibility threshold — worth a repeat check.`); }
+  if(hb < 12.5){ score -= weights.hemoglobinLow; reasons.push(`Hemoglobin ${hb} g/dL is below the 12.5 g/dL eligibility threshold.`); triggered.push({factor:'hemoglobinLow'}); }
+  else if(hb < 13){ score -= weights.hemoglobinNear; reasons.push(`Hemoglobin ${hb} g/dL is close to the eligibility threshold — worth a repeat check.`); triggered.push({factor:'hemoglobinNear'}); }
 
-  if(sys < 90 || sys > 180){ score -= 20; reasons.push(`Systolic BP ${sys} mmHg falls outside the 90–180 mmHg range.`); }
-  if(dia < 50 || dia > 100){ score -= 20; reasons.push(`Diastolic BP ${dia} mmHg falls outside the 50–100 mmHg range.`); }
+  if(sys < 90 || sys > 180){ score -= weights.systolic; reasons.push(`Systolic BP ${sys} mmHg falls outside the 90–180 mmHg range.`); triggered.push({factor:'systolic'}); }
+  if(dia < 50 || dia > 100){ score -= weights.diastolic; reasons.push(`Diastolic BP ${dia} mmHg falls outside the 50–100 mmHg range.`); triggered.push({factor:'diastolic'}); }
 
-  if(age < 17 || age > 65){ score -= 25; reasons.push(`Age ${age} is outside the accepted 17–65 donor range.`); }
-  if(d.weight && w < 50){ score -= 15; reasons.push(`Weight ${w} kg is below the 50 kg recommended minimum.`); }
+  if(age < 17 || age > 65){ score -= weights.age; reasons.push(`Age ${age} is outside the accepted 17–65 donor range.`); triggered.push({factor:'age'}); }
+  if(d.weight && w < 50){ score -= weights.weight; reasons.push(`Weight ${w} kg is below the 50 kg recommended minimum.`); triggered.push({factor:'weight'}); }
 
   if(interval.daysSince !== null && !interval.ok){
-    score -= 25;
+    score -= weights.interval;
     reasons.push(`Only ${interval.daysSince} day(s) since the last Regular donation on this device — ${interval.daysRemaining} day(s) remain before the ${MIN_INTERVAL_DAYS}-day interval is met.`);
+    triggered.push({factor:'interval'});
   }
 
   if(noteFlags.length){
-    score -= Math.min(30, 10 * noteFlags.length);
+    const penalty = Math.min(30, weights.notesPerFlag * noteFlags.length);
+    score -= penalty;
     reasons.push(`Health notes mention term(s) related to: ${noteFlags.join(', ')} — recommend a clinician review before final clearance.`);
+    triggered.push({factor:'notesPerFlag'});
   }
 
-  score = Math.max(0, Math.min(100, score));
+  score = clamp(score, 0, 100);
   let tier = 'low', tierLabel = 'Low risk — likely eligible';
   if(score < 50){ tier = 'high'; tierLabel = 'High risk — manual review required'; }
   else if(score < 80){ tier = 'med'; tierLabel = 'Medium risk — review recommended'; }
-
   if(reasons.length === 0) reasons.push('All automated checks passed within normal thresholds.');
 
-  return { score, tier, tierLabel, reasons };
+  return { score, tier, tierLabel, reasons, triggeredFactors: triggered };
 }
 
 function renderAIPanel(assessment){
@@ -696,32 +714,19 @@ function renderAIPanel(assessment){
 }
 
 // ---------- Validation ----------
-function setError(field, msg){
-  const el = document.querySelector('[data-err="'+field+'"]');
-  if(el) el.textContent = msg || '';
-}
+function setError(field, msg){ const el = document.querySelector('[data-err="'+field+'"]'); if(el) el.textContent = msg || ''; }
 function validate(data){
   let ok = true;
   ['fullName','nationalId','phone','age','gender','bloodType','hemoglobin','bp'].forEach(f=>setError(f,''));
-
-  if(!data.fullName || data.fullName.trim().length < 3){
-    setError('fullName','Enter the donor\'s full name'); ok = false;
-  }
-  if(!/^\d{10}$/.test(data.nationalId)){
-    setError('nationalId','National ID must be 10 digits'); ok = false;
-  }
-  if(!/^05\d{8}$/.test(data.phone)){
-    setError('phone','Phone must start with 05 and be 10 digits'); ok = false;
-  }
+  if(!data.fullName || data.fullName.trim().length < 3){ setError('fullName','Enter the donor\'s full name'); ok = false; }
+  if(!/^\d{10}$/.test(data.nationalId)){ setError('nationalId','National ID must be 10 digits'); ok = false; }
+  if(!/^05\d{8}$/.test(data.phone)){ setError('phone','Phone must start with 05 and be 10 digits'); ok = false; }
   const ageNum = Number(data.age);
-  if(!ageNum || ageNum < 17 || ageNum > 65){
-    setError('age','Allowed donor age is 17–65'); ok = false;
-  }
+  if(!ageNum || ageNum < 17 || ageNum > 65){ setError('age','Allowed donor age is 17–65'); ok = false; }
   if(!data.gender){ setError('gender','Select a gender'); ok = false; }
   if(!data.bloodType){ setError('bloodType','Select a blood type'); ok = false; }
   if(!data.hemoglobin || Number(data.hemoglobin) <= 0){ setError('hemoglobin','Enter hemoglobin level'); ok = false; }
   if(!data.systolic || !data.diastolic){ setError('bp','Enter both systolic and diastolic values'); ok = false; }
-
   return ok;
 }
 
@@ -762,23 +767,20 @@ form.addEventListener('submit', async (e)=>{
     const priorDonation = findPriorDonation(data.nationalId, list, null);
     const interval = intervalCheck(data.donationType, priorDonation);
     const noteFlags = scanNotes(data.notes);
+    const config = loadAIConfig();
 
     const elig = checkEligibility(data);
     if(!interval.ok) elig.reasons.push(`donation interval not met (${interval.daysRemaining}d remaining)`);
     if(noteFlags.length) elig.reasons.push('health notes flagged for review');
     elig.eligible = elig.eligible && interval.ok && noteFlags.length === 0;
 
-    const assessment = computeAIAssessment(data, interval, noteFlags);
+    const assessment = computeAIAssessment(data, interval, noteFlags, config.weights);
 
     const record = {
-      ...data,
-      id: 'D' + Date.now(),
-      eligible: elig.eligible,
-      eligibilityReasons: elig.reasons,
-      aiScore: assessment.score,
-      aiTier: assessment.tier,
-      aiReasons: assessment.reasons,
-      noteFlags,
+      ...data, id: 'D' + Date.now(),
+      eligible: elig.eligible, eligibilityReasons: elig.reasons,
+      aiScore: assessment.score, aiTier: assessment.tier, aiReasons: assessment.reasons,
+      triggeredFactors: assessment.triggeredFactors, noteFlags,
       intervalDaysRemaining: interval.daysRemaining,
       registeredAt: new Date().toISOString()
     };
@@ -798,9 +800,7 @@ form.addEventListener('submit', async (e)=>{
       document.querySelectorAll('.type-toggle .opt').forEach(o=>o.classList.remove('checked'));
       document.querySelector('.type-toggle .opt[data-type="Regular"]').classList.add('checked');
       document.querySelector('input[name="donationType"][value="Regular"]').checked = true;
-    }else{
-      throw new Error('save failed');
-    }
+    }else{ throw new Error('save failed'); }
   }catch(err){
     statusEl.textContent = 'Could not save registration, please try again';
     statusEl.classList.add('err');
@@ -821,12 +821,8 @@ function timeAgo(iso){
   return new Date(iso).toLocaleDateString('en-GB');
 }
 
-let CURRENT_LIST = [];
-
 async function renderMonitor(){
   const list = await loadRegistry();
-  CURRENT_LIST = list;
-
   document.getElementById('statTotal').textContent = list.length;
 
   const todayStr = new Date().toDateString();
@@ -838,61 +834,36 @@ async function renderMonitor(){
   document.getElementById('statEligible').textContent = eligibleCount;
   document.getElementById('statFlagged').textContent = flaggedCount;
 
-  // AI stats
   const scored = list.filter(d => typeof d.aiScore === 'number');
   const avgScore = scored.length ? Math.round(scored.reduce((s,d)=>s+d.aiScore,0)/scored.length) : null;
   document.getElementById('statAvgScore').textContent = avgScore === null ? '—' : avgScore + '%';
   document.getElementById('statHighRisk').textContent = list.filter(d => d.aiTier === 'high').length;
+  document.getElementById('statEligibleWeek').textContent = computeEligibleThisWeek(list).length;
 
-  const eligibleWeekCount = computeEligibleThisWeek(list).length;
-  document.getElementById('statEligibleWeek').textContent = eligibleWeekCount;
-
-  // Blood type chart
   const btCounts = {};
   BLOOD_TYPES.forEach(t => btCounts[t] = 0);
   list.forEach(d => { if(btCounts[d.bloodType] !== undefined) btCounts[d.bloodType]++; });
   const maxBt = Math.max(1, ...Object.values(btCounts));
   document.getElementById('bloodChart').innerHTML = BLOOD_TYPES.map(t=>{
-    const c = btCounts[t];
-    const pct = Math.round((c/maxBt)*100);
-    return `<div class="bar-item">
-      <span class="type">${t}</span>
-      <div class="bar-track"><div class="bar-fill" style="width:${c ? pct : 0}%"></div></div>
-      <span class="count">${c}</span>
-    </div>`;
+    const c = btCounts[t]; const pct = Math.round((c/maxBt)*100);
+    return `<div class="bar-item"><span class="type">${t}</span><div class="bar-track"><div class="bar-fill" style="width:${c?pct:0}%"></div></div><span class="count">${c}</span></div>`;
   }).join('');
 
-  // Donation type chart
   const regularCount = list.filter(d => d.donationType === 'Regular').length;
   const therapeuticCount = list.filter(d => d.donationType === 'Therapeutic').length;
   const maxType = Math.max(1, regularCount, therapeuticCount);
   document.getElementById('typeChart').innerHTML = `
-    <div class="bar-item">
-      <span class="type">Regular</span>
-      <div class="bar-track"><div class="bar-fill alt" style="width:${regularCount ? Math.round((regularCount/maxType)*100) : 0}%"></div></div>
-      <span class="count">${regularCount}</span>
-    </div>
-    <div class="bar-item">
-      <span class="type">Therap.</span>
-      <div class="bar-track"><div class="bar-fill alt" style="width:${therapeuticCount ? Math.round((therapeuticCount/maxType)*100) : 0}%"></div></div>
-      <span class="count">${therapeuticCount}</span>
-    </div>
+    <div class="bar-item"><span class="type">Regular</span><div class="bar-track"><div class="bar-fill alt" style="width:${regularCount?Math.round((regularCount/maxType)*100):0}%"></div></div><span class="count">${regularCount}</span></div>
+    <div class="bar-item"><span class="type">Therap.</span><div class="bar-track"><div class="bar-fill alt" style="width:${therapeuticCount?Math.round((therapeuticCount/maxType)*100):0}%"></div></div><span class="count">${therapeuticCount}</span></div>
   `;
 
-  // Table (search + filter applied on top of full list, most recent first)
   const body = document.getElementById('registryBody');
   const q = (document.getElementById('searchBox').value || '').trim().toLowerCase();
   const typeFilter = document.getElementById('filterType').value;
   const statusFilter = document.getElementById('filterStatus').value;
 
   let filtered = [...list].sort((a,b)=> new Date(b.registeredAt) - new Date(a.registeredAt));
-  if(q){
-    filtered = filtered.filter(d =>
-      d.fullName.toLowerCase().includes(q) ||
-      d.nationalId.includes(q) ||
-      d.phone.includes(q)
-    );
-  }
+  if(q){ filtered = filtered.filter(d => d.fullName.toLowerCase().includes(q) || d.nationalId.includes(q) || d.phone.includes(q)); }
   if(typeFilter){ filtered = filtered.filter(d => d.donationType === typeFilter); }
   if(statusFilter === 'eligible'){ filtered = filtered.filter(d => d.eligible); }
   if(statusFilter === 'flagged'){ filtered = filtered.filter(d => !d.eligible); }
@@ -904,8 +875,7 @@ async function renderMonitor(){
     body.innerHTML = visible.map(d=>{
       const tier = d.aiTier || 'low';
       const scoreDisp = typeof d.aiScore === 'number' ? d.aiScore + '%' : '—';
-      return `
-      <tr>
+      return `<tr>
         <td style="font-family:'Manrope',sans-serif;">${d.fullName}</td>
         <td><span class="chip ${d.donationType === 'Therapeutic' ? 'type-therapeutic' : ''}">${d.donationType || 'Regular'}</span></td>
         <td><span class="chip">${d.bloodType}</span></td>
@@ -921,23 +891,17 @@ async function renderMonitor(){
       btn.addEventListener('click', async ()=>{
         if(!confirm('Remove this registration? This cannot be undone.')) return;
         const current = await loadRegistry();
-        const updated = current.filter(d => d.id !== btn.dataset.id);
-        await saveRegistry(updated);
+        await saveRegistry(current.filter(d => d.id !== btn.dataset.id));
         renderMonitor();
       });
     });
     body.querySelectorAll('.row-id').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const donor = list.find(d => d.id === btn.dataset.id);
-        if(donor) openIdCard(donor);
-      });
+      btn.addEventListener('click', ()=>{ const donor = list.find(d => d.id === btn.dataset.id); if(donor) openIdCard(donor); });
     });
   }
 }
 
-// ---------- AI Insights tab ----------
 function computeEligibleThisWeek(list){
-  // Latest Regular donation per national ID; interval closes within next 7 days
   const latestByNid = {};
   list.filter(d => d.donationType === 'Regular').forEach(d=>{
     const prev = latestByNid[d.nationalId];
@@ -948,45 +912,174 @@ function computeEligibleThisWeek(list){
   Object.values(latestByNid).forEach(d=>{
     const eligibleDate = new Date(new Date(d.registeredAt).getTime() + MIN_INTERVAL_DAYS*86400000);
     const daysOut = daysBetween(now, eligibleDate);
-    if(daysOut >= 0 && daysOut <= 7){
-      results.push({ name: d.fullName, nationalId: d.nationalId, bloodType: d.bloodType, eligibleDate, daysOut });
-    }
+    if(daysOut >= 0 && daysOut <= 7) results.push({ name: d.fullName, bloodType: d.bloodType, eligibleDate, daysOut });
   });
   return results.sort((a,b)=> a.daysOut - b.daysOut);
 }
 
-async function renderAIInsights(){
-  const list = await loadRegistry();
+// ---------- AI Engine tab ----------
+function renderWeightEditor(){
+  const config = loadAIConfig();
+  const container = document.getElementById('weightEditor');
+  container.innerHTML = Object.keys(DEFAULT_WEIGHTS).map(key=>{
+    const val = config.weights[key];
+    const def = DEFAULT_WEIGHTS[key];
+    const bounds = weightBounds(key);
+    const pct = Math.round((val / bounds.max) * 100);
+    return `
+      <div class="weight-row">
+        <div>
+          <div class="wlabel">${WEIGHT_LABELS[key]}</div>
+          <div class="wdefault">default ${def} · range ${bounds.min}–${bounds.max}</div>
+        </div>
+        <input type="number" class="weight-input" data-key="${key}" min="${bounds.min}" max="${bounds.max}" value="${val}">
+        <div class="weight-bar-track"><div class="weight-bar-fill" style="width:${pct}%"></div></div>
+      </div>`;
+  }).join('');
+}
 
-  // 14-day trend sparkline
-  const days = [];
-  for(let i=13;i>=0;i--){
-    const d = new Date();
-    d.setDate(d.getDate()-i);
-    days.push(d.toDateString());
+document.getElementById('saveWeightsBtn').addEventListener('click', ()=>{
+  const config = loadAIConfig();
+  document.querySelectorAll('.weight-input').forEach(inp=>{
+    const key = inp.dataset.key;
+    const bounds = weightBounds(key);
+    config.weights[key] = clamp(Number(inp.value)||0, bounds.min, bounds.max);
+  });
+  config.version = (config.version||1) + 1;
+  saveAIConfig(config);
+  const s = document.getElementById('weightStatus');
+  s.textContent = 'Guidelines saved — engine v' + config.version;
+  s.className = 'status-msg ok';
+  renderWeightEditor();
+  document.getElementById('engineVersion').textContent = config.version;
+});
+
+document.getElementById('resetWeightsBtn').addEventListener('click', ()=>{
+  if(!confirm('Reset all guideline weights to their clinical defaults? This does not delete the training log.')) return;
+  const config = loadAIConfig();
+  config.weights = {...DEFAULT_WEIGHTS};
+  config.version = (config.version||1) + 1;
+  saveAIConfig(config);
+  renderWeightEditor();
+  document.getElementById('engineVersion').textContent = config.version;
+  const s = document.getElementById('weightStatus');
+  s.textContent = 'Guidelines reset to default';
+  s.className = 'status-msg warn';
+});
+
+async function submitFeedback(donorId, decision){
+  const registry = await loadRegistry();
+  const record = registry.find(d => d.id === donorId);
+  if(!record) return;
+  const feedback = await loadFeedback();
+  if(feedback.find(f => f.donorId === donorId)){ return; }
+
+  const config = loadAIConfig();
+  let adjustedKeys = [];
+  if(decision !== 'agree' && record.triggeredFactors && record.triggeredFactors.length){
+    const direction = decision === 'override_eligible' ? -1 : 1;
+    record.triggeredFactors.forEach(tf=>{
+      const key = tf.factor;
+      const bounds = weightBounds(key);
+      const before = config.weights[key];
+      const after = clamp(before + direction*STEP, bounds.min, bounds.max);
+      if(after !== before){
+        config.weights[key] = after;
+        adjustedKeys.push(key);
+        config.log.unshift({
+          factor: key, from: before, to: after,
+          direction: direction > 0 ? 'up' : 'down',
+          reason: decision === 'override_eligible' ? 'staff overrode to eligible' : 'staff overrode to flagged',
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+    if(adjustedKeys.length){
+      config.adjustments = (config.adjustments||0) + 1;
+      config.version = (config.version||1) + 1;
+      config.log = config.log.slice(0,50);
+      saveAIConfig(config);
+    }
   }
+
+  feedback.push({
+    id:'F'+Date.now(), donorId, aiScore: record.aiScore, aiTier: record.aiTier,
+    decision, adjustedFactors: adjustedKeys, timestamp: new Date().toISOString()
+  });
+  await saveFeedback(feedback);
+  renderEngineView();
+}
+
+async function renderTrainingQueue(){
+  const registry = await loadRegistry();
+  const feedback = await loadFeedback();
+  const feedbackIds = new Set(feedback.map(f=>f.donorId));
+  const pending = [...registry].sort((a,b)=> new Date(b.registeredAt) - new Date(a.registeredAt))
+    .filter(d => !feedbackIds.has(d.id)).slice(0,10);
+
+  document.getElementById('statPendingQueue').textContent = registry.length - feedbackIds.size;
+
+  const container = document.getElementById('trainingQueue');
+  if(pending.length === 0){
+    container.innerHTML = '<p class="hint">No pending registrations — every record has staff feedback.</p>';
+    return;
+  }
+  container.innerHTML = pending.map(d=>{
+    const tier = d.aiTier || 'low';
+    return `
+    <div class="queue-item">
+      <div class="queue-item-head">
+        <span class="qname">${d.fullName} <span class="qmeta">· ${d.bloodType} · AI: ${d.aiScore}% (${tier})</span></span>
+      </div>
+      <div class="queue-actions">
+        <button class="qbtn agree" data-id="${d.id}" data-decision="agree">✓ Confirm AI was right</button>
+        <button class="qbtn elig" data-id="${d.id}" data-decision="override_eligible">Override → Eligible</button>
+        <button class="qbtn flag" data-id="${d.id}" data-decision="override_flagged">Override → Flag</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.qbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=> submitFeedback(btn.dataset.id, btn.dataset.decision));
+  });
+}
+
+async function renderTuningStats(){
+  const config = loadAIConfig();
+  const feedback = await loadFeedback();
+  document.getElementById('engineVersion').textContent = config.version || 1;
+  document.getElementById('statEngineAdjustments').textContent = config.adjustments || 0;
+  document.getElementById('statFeedbackCount').textContent = feedback.length;
+  const agreeCount = feedback.filter(f=>f.decision==='agree').length;
+  document.getElementById('statAgreementRate').textContent = feedback.length ? Math.round((agreeCount/feedback.length)*100) + '%' : '—';
+
+  const logEl = document.getElementById('tuningLog');
+  if(!config.log || config.log.length === 0){
+    logEl.innerHTML = '<li>No adjustments yet.</li>';
+  }else{
+    logEl.innerHTML = config.log.map(l=>{
+      const arrow = l.direction === 'up' ? '<span class="up">▲</span>' : '<span class="down">▼</span>';
+      return `<li>${arrow} ${WEIGHT_LABELS[l.factor]}: ${l.from} → ${l.to} <span style="color:var(--muted)">(${l.reason})</span></li>`;
+    }).join('');
+  }
+}
+
+async function renderAIInsightsCharts(){
+  const list = await loadRegistry();
+  const days = [];
+  for(let i=13;i>=0;i--){ const d = new Date(); d.setDate(d.getDate()-i); days.push(d.toDateString()); }
   const counts = days.map(ds => list.filter(d => new Date(d.registeredAt).toDateString() === ds).length);
   const max = Math.max(1, ...counts);
   const w = 400, h = 120, pad = 10;
   const stepX = (w - pad*2) / (counts.length - 1);
-  const points = counts.map((c,i)=>{
-    const x = pad + i*stepX;
-    const y = h - pad - (c/max)*(h - pad*2);
-    return `${x},${y}`;
-  }).join(' ');
-  const svg = document.getElementById('trendSpark');
-  svg.innerHTML = `
+  const points = counts.map((c,i)=>{ const x = pad + i*stepX; const y = h - pad - (c/max)*(h - pad*2); return `${x},${y}`; }).join(' ');
+  document.getElementById('trendSpark').innerHTML = `
     <polyline points="${points}" fill="none" stroke="#7FC4FF" stroke-width="2"/>
-    ${counts.map((c,i)=>{
-      const x = pad + i*stepX; const y = h - pad - (c/max)*(h - pad*2);
-      return `<circle cx="${x}" cy="${y}" r="2.4" fill="#7FC4FF"/>`;
-    }).join('')}
+    ${counts.map((c,i)=>{ const x = pad + i*stepX; const y = h - pad - (c/max)*(h - pad*2); return `<circle cx="${x}" cy="${y}" r="2.4" fill="#7FC4FF"/>`; }).join('')}
   `;
 
-  // Flag frequency
   const freq = {};
   list.forEach(d => (d.aiReasons || []).forEach(r=>{
-    // bucket by leading phrase before first comma/period for compact grouping
     const key = r.split(' — ')[0].replace(/[0-9.]+/g,'#').slice(0,60);
     freq[key] = (freq[key]||0) + 1;
   }));
@@ -1001,23 +1094,22 @@ async function renderAIInsights(){
         <span class="type small" title="${label}">${label}</span>
         <div class="bar-track"><div class="bar-fill ai" style="width:${Math.round((count/maxF)*100)}%"></div></div>
         <span class="count">${count}</span>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
-  // Eligible this week
   const soon = computeEligibleThisWeek(list);
   const soonEl = document.getElementById('eligibleSoonList');
-  if(soon.length === 0){
-    soonEl.innerHTML = '<li>No matches right now.</li>';
-  }else{
-    soonEl.innerHTML = soon.map(s=>`
-      <li>
-        <span class="name">${s.name} <span class="meta">(${s.bloodType})</span></span>
-        <span class="meta">${s.daysOut === 0 ? 'eligible today' : 'eligible in ' + s.daysOut + 'd — ' + s.eligibleDate.toLocaleDateString('en-GB')}</span>
-      </li>
-    `).join('');
-  }
+  soonEl.innerHTML = soon.length === 0 ? '<li>No matches right now.</li>' : soon.map(s=>`
+    <li><span class="name">${s.name} <span class="meta">(${s.bloodType})</span></span>
+    <span class="meta">${s.daysOut === 0 ? 'eligible today' : 'eligible in ' + s.daysOut + 'd — ' + s.eligibleDate.toLocaleDateString('en-GB')}</span></li>
+  `).join('');
+}
+
+async function renderEngineView(){
+  renderWeightEditor();
+  await renderTrainingQueue();
+  await renderTuningStats();
+  await renderAIInsightsCharts();
 }
 
 // ---------- Donor ID card modal ----------
@@ -1028,73 +1120,73 @@ function openIdCard(donor){
   document.getElementById('cardMeta').innerHTML = `${donor.bloodType} · ${donor.donationType || 'Regular'}<br>Registered ${new Date(donor.registeredAt).toLocaleDateString('en-GB')}`;
   const qrEl = document.getElementById('qrContainer');
   qrEl.innerHTML = '';
-  if(window.QRCode){
-    new QRCode(qrEl, { text: donor.id, width: 140, height: 140, colorDark: '#0A1628', colorLight: '#F6F3EC' });
-  }else{
-    qrEl.innerHTML = '<span style="color:#0A1628; font-family:monospace; font-size:11px;">QR unavailable offline</span>';
-  }
+  if(window.QRCode){ new QRCode(qrEl, { text: donor.id, width: 140, height: 140, colorDark: '#0A1628', colorLight: '#F6F3EC' }); }
+  else{ qrEl.innerHTML = '<span style="color:#0A1628; font-family:monospace; font-size:11px;">QR unavailable offline</span>'; }
   idCardModal.classList.add('show');
 }
 document.getElementById('modalCloseBtn').addEventListener('click', ()=> idCardModal.classList.remove('show'));
 idCardModal.addEventListener('click', (e)=>{ if(e.target === idCardModal) idCardModal.classList.remove('show'); });
 document.getElementById('printCardBtn').addEventListener('click', ()=> window.print());
 
+// ---------- Export / Import (full engine backup) ----------
 function exportCSV(list){
   const headers = ['Name','National ID','Phone','Age','Gender','Weight','Donation Type','Blood Type','Hemoglobin','Systolic','Diastolic','Status','AI Score','AI Tier','Registered At','Notes'];
-  const rows = list.map(d => [
-    d.fullName, d.nationalId, d.phone, d.age, d.gender, d.weight,
-    d.donationType, d.bloodType, d.hemoglobin, d.systolic, d.diastolic,
-    d.eligible ? 'Eligible' : 'Flagged', d.aiScore ?? '', d.aiTier ?? '', d.registeredAt, (d.notes || '').replace(/[\r\n,]+/g,' ')
-  ]);
+  const rows = list.map(d => [d.fullName, d.nationalId, d.phone, d.age, d.gender, d.weight, d.donationType, d.bloodType, d.hemoglobin, d.systolic, d.diastolic, d.eligible ? 'Eligible' : 'Flagged', d.aiScore ?? '', d.aiTier ?? '', d.registeredAt, (d.notes || '').replace(/[\r\n,]+/g,' ')]);
   const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'hemotrack-donor-registry.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  const a = document.createElement('a'); a.href = url; a.download = 'hemotrack-donor-registry.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-function exportJSON(list){
-  const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+async function exportEngineBackup(){
+  const registry = await loadRegistry();
+  const config = loadAIConfig();
+  const feedback = await loadFeedback();
+  const payload = { type: 'hemotrack-engine-backup', exportedAt: new Date().toISOString(), registry, config, feedback };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  const stamp = new Date().toISOString().slice(0,10);
-  a.download = `hemotrack-backup-${stamp}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `hemotrack-engine-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-async function importJSON(file){
+async function importEngineBackup(file){
   try{
     const text = await file.text();
     const incoming = JSON.parse(text);
-    if(!Array.isArray(incoming)) throw new Error('not an array');
+
+    // Support both the new combined backup format and a legacy plain-array registry export
+    const incomingRegistry = Array.isArray(incoming) ? incoming : (incoming.registry || []);
+    const incomingConfig = Array.isArray(incoming) ? null : incoming.config;
+    const incomingFeedback = Array.isArray(incoming) ? [] : (incoming.feedback || []);
 
     const current = await loadRegistry();
     const replace = confirm(
-      `Found ${incoming.length} record(s) in this backup.\n\n` +
+      `Found ${incomingRegistry.length} registration(s)${incomingConfig ? ' plus engine guidelines and training history' : ''} in this backup.\n\n` +
       `Press OK to MERGE with the ${current.length} record(s) already on this device.\n` +
       `Press Cancel to REPLACE this device's data entirely with the backup.`
     );
 
-    let merged;
+    let mergedRegistry;
     if(replace){
       const existingIds = new Set(current.map(d => d.id));
-      merged = [...current, ...incoming.filter(d => !existingIds.has(d.id))];
+      mergedRegistry = [...current, ...incomingRegistry.filter(d => !existingIds.has(d.id))];
     }else{
-      merged = incoming;
+      mergedRegistry = incomingRegistry;
+    }
+    await saveRegistry(mergedRegistry);
+
+    if(incomingConfig){ saveAIConfig(incomingConfig); }
+    if(incomingFeedback.length){
+      const currentFeedback = await loadFeedback();
+      const existingFids = new Set(currentFeedback.map(f=>f.id));
+      await saveFeedback([...currentFeedback, ...incomingFeedback.filter(f=>!existingFids.has(f.id))]);
     }
 
-    await saveRegistry(merged);
     alert('Backup restored successfully.');
     renderMonitor();
+    renderEngineView();
   }catch(e){
     alert('Could not read this backup file. Make sure it is a JSON file exported from HemoTrack.');
   }
@@ -1108,28 +1200,17 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
   if(list.length === 0){ alert('No registrations to export yet.'); return; }
   exportCSV(list);
 });
-document.getElementById('exportJsonBtn').addEventListener('click', async ()=>{
-  const list = await loadRegistry();
-  if(list.length === 0){ alert('No registrations to back up yet.'); return; }
-  exportJSON(list);
-});
-document.getElementById('importJsonBtn').addEventListener('click', ()=>{
-  document.getElementById('importFileInput').click();
-});
+document.getElementById('exportJsonBtn').addEventListener('click', exportEngineBackup);
+document.getElementById('importJsonBtn').addEventListener('click', ()=> document.getElementById('importFileInput').click());
 document.getElementById('importFileInput').addEventListener('change', (e)=>{
   const file = e.target.files[0];
-  if(file) importJSON(file);
+  if(file) importEngineBackup(file);
   e.target.value = '';
 });
 
-// Poll every 5s while monitor tab is visible (skip refresh while user is actively typing a search)
 setInterval(()=>{
-  if(document.getElementById('view-monitor').classList.contains('active') && document.activeElement.id !== 'searchBox'){
-    renderMonitor();
-  }
-  if(document.getElementById('view-ai').classList.contains('active')){
-    renderAIInsights();
-  }
+  if(document.getElementById('view-monitor').classList.contains('active') && document.activeElement.id !== 'searchBox') renderMonitor();
+  if(document.getElementById('view-engine').classList.contains('active')) renderEngineView();
 }, 5000);
 
 renderMonitor();

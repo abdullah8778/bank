@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HemoTrack — Donor Registration</title>
+<title>HemoTrack AI — Donor Intelligence Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
     --navy-950:#0A1628;
@@ -20,6 +21,8 @@
     --line:rgba(255,255,255,0.09);
     --ok:#3FAE68;
     --warn:#E0A030;
+    --ai:#5BA8E0;
+    --ai-bright:#7FC4FF;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{height:100%;}
@@ -41,32 +44,45 @@
     position:sticky; top:0; z-index:20;
     background:rgba(10,22,40,0.85);
     backdrop-filter:blur(10px);
+    flex-wrap:wrap; gap:14px;
   }
   .brand{display:flex; align-items:center; gap:12px;}
   .brand svg{width:34px; height:34px; flex-shrink:0;}
-  .brand-text h1{font-size:19px; font-weight:800; letter-spacing:.3px;}
+  .brand-text h1{font-size:19px; font-weight:800; letter-spacing:.3px; display:flex; align-items:center; gap:8px;}
   .brand-text span{display:block; font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; letter-spacing:1px;}
+  .ai-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; font-weight:600; letter-spacing:.5px;
+    color:var(--ai-bright); border:1px solid rgba(123,196,255,.4); background:rgba(91,168,224,.12);
+    padding:2px 7px; border-radius:20px;
+  }
 
   .tabs{display:flex; gap:6px; background:var(--navy-900); border:1px solid var(--line); border-radius:12px; padding:4px;}
   .tab-btn{
     border:none; background:transparent; color:var(--muted); cursor:pointer;
     font-family:'Manrope',sans-serif; font-weight:700; font-size:14px;
-    padding:9px 18px; border-radius:9px; transition:.2s;
+    padding:9px 18px; border-radius:9px; transition:.2s; white-space:nowrap;
   }
   .tab-btn.active{background:var(--blood); color:#fff; box-shadow:0 4px 14px rgba(179,18,44,.35);}
+  .tab-btn[data-view="ai"].active{background:var(--ai); box-shadow:0 4px 14px rgba(91,168,224,.35);}
   .tab-btn:not(.active):hover{color:var(--paper);}
 
-  main{max-width:1100px; margin:0 auto; padding:36px clamp(16px,4vw,48px) 80px;}
+  main{max-width:1140px; margin:0 auto; padding:36px clamp(16px,4vw,48px) 80px;}
   .view{display:none; animation:fade .35s ease;}
   .view.active{display:block;}
   @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
 
   .pulse-wrap{display:flex; align-items:center; gap:14px; margin:0 0 30px;}
   .pulse-wrap .dot{width:8px; height:8px; border-radius:50%; background:var(--blood-bright); box-shadow:0 0 0 0 rgba(225,62,82,.6); animation:ping 1.8s infinite;}
+  .pulse-wrap .dot.ai-dot{background:var(--ai-bright); animation:pingAi 1.8s infinite;}
   @keyframes ping{
     0%{box-shadow:0 0 0 0 rgba(225,62,82,.55);}
     70%{box-shadow:0 0 0 9px rgba(225,62,82,0);}
     100%{box-shadow:0 0 0 0 rgba(225,62,82,0);}
+  }
+  @keyframes pingAi{
+    0%{box-shadow:0 0 0 0 rgba(123,196,255,.55);}
+    70%{box-shadow:0 0 0 9px rgba(123,196,255,0);}
+    100%{box-shadow:0 0 0 0 rgba(123,196,255,0);}
   }
   .pulse-line{flex:1; height:26px;}
   .pulse-label{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:1.5px; white-space:nowrap;}
@@ -77,7 +93,7 @@
     padding:clamp(20px,3vw,34px);
   }
   .card + .card{margin-top:22px;}
-  .card h2{font-size:16px; font-weight:800; margin-bottom:4px;}
+  .card h2{font-size:16px; font-weight:800; margin-bottom:4px; display:flex; align-items:center; gap:8px;}
   .card .sub{font-size:12.5px; color:var(--muted); margin-bottom:22px;}
 
   form{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
@@ -126,7 +142,33 @@
   .status-msg.warn{color:var(--warn);}
   .status-msg.err{color:var(--blood-bright);}
 
+  /* AI Screening result panel */
+  .ai-panel{
+    grid-column:1/-1; display:none; margin-top:4px; border:1px solid rgba(91,168,224,.35);
+    background:linear-gradient(180deg, rgba(91,168,224,.08), rgba(91,168,224,.02));
+    border-radius:14px; padding:20px 22px;
+  }
+  .ai-panel.show{display:block; animation:fade .3s ease;}
+  .ai-panel-head{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .ai-panel-head .title{display:flex; align-items:center; gap:8px; font-weight:800; font-size:13.5px;}
+  .ai-panel-head .title svg{width:16px; height:16px;}
+  .score-wrap{display:flex; align-items:center; gap:12px;}
+  .score-num{font-family:'IBM Plex Mono',monospace; font-size:24px; font-weight:600;}
+  .tier-pill{font-size:11px; font-weight:700; padding:4px 11px; border-radius:20px; font-family:'IBM Plex Mono',monospace;}
+  .tier-pill.low{background:rgba(63,174,104,.15); color:var(--ok); border:1px solid rgba(63,174,104,.4);}
+  .tier-pill.med{background:rgba(224,160,48,.15); color:var(--warn); border:1px solid rgba(224,160,48,.4);}
+  .tier-pill.high{background:rgba(225,62,82,.15); color:var(--blood-bright); border:1px solid rgba(225,62,82,.4);}
+  .meter-track{background:var(--navy-950); border:1px solid var(--line); border-radius:8px; height:10px; overflow:hidden; margin-bottom:14px;}
+  .meter-fill{height:100%; border-radius:8px; transition:width .6s ease;}
+  .reason-list{list-style:none; display:flex; flex-direction:column; gap:8px;}
+  .reason-list li{
+    font-size:12.5px; color:var(--paper); padding-inline-start:18px; position:relative; line-height:1.5;
+  }
+  .reason-list li::before{content:'—'; position:absolute; inset-inline-start:0; color:var(--ai-bright);}
+  .ai-disclaimer{font-size:10.5px; color:var(--muted); margin-top:14px; padding-top:12px; border-top:1px solid var(--line); line-height:1.5;}
+
   .stats-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px;}
+  .stats-grid.secondary{grid-template-columns:repeat(3,1fr);}
   .stat{
     background:var(--navy-900); border:1px solid var(--line); border-radius:14px; padding:18px 20px;
     position:relative; overflow:hidden;
@@ -134,6 +176,7 @@
   .stat::before{content:''; position:absolute; inset-inline-start:0; top:0; bottom:0; width:3px; background:var(--blood);}
   .stat.ok-stat::before{background:var(--ok);}
   .stat.warn-stat::before{background:var(--warn);}
+  .stat.ai-stat::before{background:var(--ai);}
   .stat .num{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600;}
   .stat .lbl{font-size:11.5px; color:var(--muted); margin-top:4px;}
 
@@ -142,10 +185,13 @@
 
   .chart-row{display:flex; flex-direction:column; gap:10px;}
   .bar-item{display:grid; grid-template-columns:56px 1fr 44px; align-items:center; gap:12px;}
+  .bar-item.wide{grid-template-columns:120px 1fr 40px;}
   .bar-item .type{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--gold);}
+  .bar-item .type.small{font-size:11.5px; font-weight:500; color:var(--paper); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .bar-track{background:var(--navy-950); border:1px solid var(--line); border-radius:6px; height:16px; overflow:hidden;}
   .bar-fill{height:100%; background:linear-gradient(90deg, var(--blood), var(--blood-bright)); border-radius:6px; transition:width .5s ease;}
   .bar-fill.alt{background:linear-gradient(90deg, #5B7BA8, var(--gold));}
+  .bar-fill.ai{background:linear-gradient(90deg, #2E6A93, var(--ai-bright));}
   .bar-item .count{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted); text-align:right;}
 
   table{width:100%; border-collapse:collapse; font-size:13px;}
@@ -176,21 +222,72 @@
     cursor:pointer; transition:.15s; white-space:nowrap;
   }
   .btn-ghost:hover{border-color:var(--gold); color:var(--gold);}
+  .btn-ghost.ai-ghost:hover{border-color:var(--ai-bright); color:var(--ai-bright);}
   .row-del{
     background:transparent; border:1px solid rgba(225,62,82,.35); color:var(--blood-bright);
     border-radius:8px; padding:5px 10px; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px;
     cursor:pointer; transition:.15s;
   }
   .row-del:hover{background:rgba(225,62,82,.15);}
+  .row-id{
+    background:transparent; border:1px solid rgba(123,196,255,.35); color:var(--ai-bright);
+    border-radius:8px; padding:5px 10px; font-family:'Manrope',sans-serif; font-weight:700; font-size:11px;
+    cursor:pointer; transition:.15s; margin-inline-end:6px;
+  }
+  .row-id:hover{background:rgba(123,196,255,.15);}
+  .score-cell{display:flex; align-items:center; gap:8px;}
+  .score-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .score-dot.low{background:var(--ok);}
+  .score-dot.med{background:var(--warn);}
+  .score-dot.high{background:var(--blood-bright);}
+
+  /* AI Insights tab */
+  .insight-list{list-style:none; display:flex; flex-direction:column; gap:10px;}
+  .insight-list li{
+    display:flex; justify-content:space-between; gap:12px; font-size:12.5px; padding:10px 12px;
+    background:var(--navy-950); border:1px solid var(--line); border-radius:10px;
+  }
+  .insight-list li .name{font-weight:700;}
+  .insight-list li .meta{color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
+  .sparkline-wrap{display:flex; flex-direction:column; gap:8px;}
+  .flag-freq{display:flex; flex-direction:column; gap:10px;}
+
+  /* Modal */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(4,10,20,.72); backdrop-filter:blur(4px);
+    z-index:100; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-card{
+    background:linear-gradient(180deg, var(--navy-900), var(--navy-800)); border:1px solid var(--line);
+    border-radius:18px; padding:28px; max-width:340px; width:100%; text-align:center; position:relative;
+  }
+  .modal-close{
+    position:absolute; top:14px; inset-inline-end:14px; background:none; border:none; color:var(--muted);
+    font-size:18px; cursor:pointer; line-height:1;
+  }
+  .modal-close:hover{color:var(--paper);}
+  #qrContainer{display:flex; align-items:center; justify-content:center; background:var(--paper); border-radius:12px; padding:14px; margin:16px auto;}
+  .card-donor-name{font-size:16px; font-weight:800; margin-top:4px;}
+  .card-donor-id{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gold); margin-top:2px;}
+  .card-donor-meta{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.7;}
+  .modal-actions{display:flex; gap:10px; margin-top:18px;}
+  .modal-actions button{flex:1;}
 
   @media (max-width:720px){
     form{grid-template-columns:1fr;}
     .field-pair{grid-template-columns:1fr;}
     .stats-grid{grid-template-columns:repeat(2,1fr);}
+    .stats-grid.secondary{grid-template-columns:1fr;}
     header{flex-direction:column; gap:14px; align-items:stretch;}
     .tabs{justify-content:center;}
     table{font-size:11.5px;}
     thead th:nth-child(4), tbody td:nth-child(4){display:none;}
+  }
+
+  @media print{
+    header, .tabs, .table-toolbar, .btn-row, .modal-actions, .modal-close{display:none !important;}
+    body{background:#fff; color:#000;}
   }
 </style>
 </head>
@@ -203,13 +300,14 @@
       <circle cx="16" cy="24" r="3.2" fill="#F6F3EC" opacity="0.35"/>
     </svg>
     <div class="brand-text">
-      <h1>HemoTrack AI</h1>
-      <span>DONOR REGISTRATION & MONITORING</span>
+      <h1>HemoTrack AI <span class="ai-tag">AI-ASSISTED</span></h1>
+      <span>DONOR REGISTRATION · SCREENING · MONITORING</span>
     </div>
   </div>
   <div class="tabs">
     <button class="tab-btn active" data-view="register">Register</button>
     <button class="tab-btn" data-view="monitor">Live Monitor</button>
+    <button class="tab-btn" data-view="ai">AI Insights</button>
   </div>
 </header>
 
@@ -225,7 +323,7 @@
 
     <div class="card">
       <h2>Donor Intake Form</h2>
-      <p class="sub">Fields marked <span style="color:var(--blood-bright)">*</span> are required. Registration is saved automatically and screened against basic donation-eligibility thresholds.</p>
+      <p class="sub">Fields marked <span style="color:var(--blood-bright)">*</span> are required. Every registration is screened automatically by the AI-assisted decision-support engine below.</p>
 
       <form id="donorForm" novalidate>
 
@@ -275,7 +373,7 @@
               <input type="radio" name="donationType" value="Therapeutic"> Therapeutic Donation
             </label>
           </div>
-          <div class="hint">Therapeutic = medically indicated phlebotomy (e.g. polycythemia, hemochromatosis), not routed for standard transfusion release.</div>
+          <div class="hint">Therapeutic = medically indicated phlebotomy (e.g. polycythemia, hemochromatosis), not routed for standard transfusion release. Regular donations are auto-checked against the minimum inter-donation interval.</div>
         </div>
         <div class="field">
           <label>Blood Type (ABO/Rh) <span class="req">*</span></label>
@@ -291,7 +389,7 @@
         <div class="field">
           <label>Last Donation Date</label>
           <input type="date" id="lastDonation">
-          <div class="hint">Leave blank if this is a first-time donation</div>
+          <div class="hint">Leave blank if this is a first-time donation. The engine also checks this device's own registry history for the same ID.</div>
         </div>
 
         <div class="section-label">Clinical Screening</div>
@@ -311,12 +409,29 @@
         </div>
         <div class="field full">
           <label>Health Notes</label>
-          <textarea id="notes" rows="3" placeholder="Chronic conditions, medications, allergies... (optional)"></textarea>
+          <textarea id="notes" rows="3" placeholder="Chronic conditions, medications, allergies, recent travel... (optional — scanned automatically for review flags)"></textarea>
         </div>
 
         <div class="btn-row">
           <button type="submit" class="submit" id="submitBtn">Save Registration</button>
           <span class="status-msg" id="formStatus"></span>
+        </div>
+
+        <!-- AI Screening Result Panel -->
+        <div class="ai-panel" id="aiPanel">
+          <div class="ai-panel-head">
+            <div class="title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#7FC4FF" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+              AI Screening Assessment
+            </div>
+            <div class="score-wrap">
+              <span class="score-num mono" id="aiScoreNum">—</span>
+              <span class="tier-pill" id="aiTierPill">—</span>
+            </div>
+          </div>
+          <div class="meter-track"><div class="meter-fill" id="aiMeterFill" style="width:0%"></div></div>
+          <ul class="reason-list" id="aiReasonList"></ul>
+          <div class="ai-disclaimer">This is a rule-based decision-support summary generated on-device from the values entered above (thresholds, interval history, and keyword scan of health notes). It is not a diagnostic tool and does not replace clinical judgment — a qualified staff member must confirm final eligibility.</div>
         </div>
       </form>
     </div>
@@ -337,6 +452,11 @@
       <div class="stat ok-stat"><div class="num mono" id="statEligible">0</div><div class="lbl">Eligible for Donation</div></div>
       <div class="stat warn-stat"><div class="num mono" id="statFlagged">0</div><div class="lbl">Flagged / Deferred</div></div>
     </div>
+    <div class="stats-grid secondary">
+      <div class="stat ai-stat"><div class="num mono" id="statAvgScore">—</div><div class="lbl">Avg. AI Confidence Score</div></div>
+      <div class="stat ai-stat"><div class="num mono" id="statHighRisk">0</div><div class="lbl">High-Risk / Needs Review</div></div>
+      <div class="stat ai-stat"><div class="num mono" id="statEligibleWeek">0</div><div class="lbl">Interval-Eligible This Week</div></div>
+    </div>
 
     <div class="two-col">
       <div class="card">
@@ -353,7 +473,7 @@
 
     <div class="card">
       <h2>Registration Log</h2>
-      <p class="sub">Search, filter, export, or remove individual records. Since data is stored only in this browser, use <strong>Backup (JSON)</strong> regularly and keep the file somewhere safe — clearing browser data or switching devices will lose the registry unless you restore from a backup.</p>
+      <p class="sub">Search, filter, export, print donor ID cards, or remove individual records. Since data is stored only in this browser, use <strong>Backup (JSON)</strong> regularly and keep the file somewhere safe — clearing browser data or switching devices will lose the registry unless you restore from a backup.</p>
       <div class="table-toolbar">
         <input type="text" id="searchBox" placeholder="Search by name, ID, or phone...">
         <select id="filterType">
@@ -380,23 +500,73 @@
               <th>Blood</th>
               <th>Hb / BP</th>
               <th>Status</th>
+              <th>AI Score</th>
               <th>Registered</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="registryBody">
-            <tr><td colspan="7" class="empty">No registrations yet</td></tr>
+            <tr><td colspan="8" class="empty">No registrations yet</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </section>
 
+  <!-- ============ AI INSIGHTS VIEW ============ -->
+  <section class="view" id="view-ai">
+    <div class="pulse-wrap">
+      <span class="dot ai-dot"></span>
+      <svg class="pulse-line" viewBox="0 0 400 26" preserveAspectRatio="none"><polyline points="0,13 40,13 55,4 70,24 85,2 100,13 400,13" fill="none" stroke="#5BA8E0" stroke-width="1.6"/></svg>
+      <span class="pulse-label" style="color:var(--ai-bright)">AI ENGINE · SCREENING & INTERVAL ANALYTICS</span>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Registrations — Last 14 Days</h2>
+        <p class="sub">On-device trend, no external data leaves the browser</p>
+        <svg id="trendSpark" viewBox="0 0 400 120" preserveAspectRatio="none" style="width:100%; height:120px;"></svg>
+      </div>
+      <div class="card">
+        <h2>Most Frequent Review Flags</h2>
+        <p class="sub">Reasons the AI engine most often raises for manual review</p>
+        <div class="flag-freq" id="flagFreq"><p class="hint">No flags recorded yet.</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Donors Interval-Eligible This Week</h2>
+      <p class="sub">Regular donors whose 56-day minimum interval closes within the next 7 days — useful for recall / reminder calls</p>
+      <ul class="insight-list" id="eligibleSoonList"><li>No matches right now.</li></ul>
+    </div>
+
+    <div class="card">
+      <h2>About the AI Engine</h2>
+      <p class="sub" style="margin-bottom:0;">HemoTrack's screening engine is a transparent, rule-based scoring model (v1.2) — not a machine-learning or diagnostic system. It combines four automated checks: (1) clinical thresholds for hemoglobin, blood pressure, age, and weight; (2) the minimum inter-donation interval calculated from this device's own donation history; (3) a keyword scan of free-text health notes flagging terms that warrant clinician attention; and (4) a 0–100 confidence score summarizing the above for faster staff triage. All logic runs locally in the browser — no data is sent anywhere.</p>
+    </div>
+  </section>
+
 </main>
+
+<!-- Donor ID Card Modal -->
+<div class="modal-overlay" id="idCardModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalCloseBtn">&times;</button>
+    <div id="qrContainer"></div>
+    <div class="card-donor-name" id="cardName">—</div>
+    <div class="card-donor-id mono" id="cardId">—</div>
+    <div class="card-donor-meta mono" id="cardMeta">—</div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="printCardBtn">Print</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const STORAGE_KEY = 'hemotrack-donor-registry';
 const BLOOD_TYPES = ['O+','O-','A+','A-','B+','B-','AB+','AB-'];
+const MIN_INTERVAL_DAYS = 56; // minimum interval between Regular whole-blood donations
+const NOTE_KEYWORDS = ['diabet','anemi','pregnan','medication','aspirin','warfarin','anticoagul','allerg','hiv','hepatit','malaria','travel','asthma','epileps','heart','cardiac','cancer','tuberc','surgery','transfus'];
 
 // ---------- Tabs ----------
 document.querySelectorAll('.tab-btn').forEach(btn=>{
@@ -406,6 +576,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('view-'+btn.dataset.view).classList.add('active');
     if(btn.dataset.view === 'monitor') renderMonitor();
+    if(btn.dataset.view === 'ai') renderAIInsights();
   });
 });
 
@@ -439,7 +610,7 @@ async function saveRegistry(list){
   }
 }
 
-// ---------- Eligibility screening ----------
+// ---------- Eligibility screening (hard clinical rules) ----------
 function checkEligibility(d){
   const reasons = [];
   const age = Number(d.age), hb = Number(d.hemoglobin), sys = Number(d.systolic), dia = Number(d.diastolic), w = Number(d.weight);
@@ -449,6 +620,79 @@ function checkEligibility(d){
   if(sys < 90 || sys > 180) reasons.push('systolic BP out of range');
   if(dia < 50 || dia > 100) reasons.push('diastolic BP out of range');
   return { eligible: reasons.length === 0, reasons };
+}
+
+// ---------- Interval automation ----------
+function daysBetween(d1, d2){
+  return Math.floor((d2.getTime() - d1.getTime()) / 86400000);
+}
+function findPriorDonation(nationalId, list, excludeId){
+  return list
+    .filter(d => d.nationalId === nationalId && d.id !== excludeId)
+    .sort((a,b) => new Date(b.registeredAt) - new Date(a.registeredAt))[0] || null;
+}
+function intervalCheck(donationType, priorDonation){
+  if(!priorDonation || donationType !== 'Regular') return { ok:true, daysSince:null, daysRemaining:0 };
+  const daysSince = daysBetween(new Date(priorDonation.registeredAt), new Date());
+  const daysRemaining = Math.max(0, MIN_INTERVAL_DAYS - daysSince);
+  return { ok: daysRemaining === 0, daysSince, daysRemaining };
+}
+
+// ---------- NLP-style keyword scan on free-text notes ----------
+function scanNotes(notes){
+  if(!notes) return [];
+  const lower = notes.toLowerCase();
+  return NOTE_KEYWORDS.filter(k => lower.includes(k));
+}
+
+// ---------- AI screening engine (rule-based confidence score) ----------
+function computeAIAssessment(d, interval, noteFlags){
+  let score = 100;
+  const reasons = [];
+  const hb = Number(d.hemoglobin), sys = Number(d.systolic), dia = Number(d.diastolic), age = Number(d.age), w = Number(d.weight);
+
+  if(hb < 12.5){ score -= 30; reasons.push(`Hemoglobin ${hb} g/dL is below the 12.5 g/dL eligibility threshold.`); }
+  else if(hb < 13){ score -= 8; reasons.push(`Hemoglobin ${hb} g/dL is close to the eligibility threshold — worth a repeat check.`); }
+
+  if(sys < 90 || sys > 180){ score -= 20; reasons.push(`Systolic BP ${sys} mmHg falls outside the 90–180 mmHg range.`); }
+  if(dia < 50 || dia > 100){ score -= 20; reasons.push(`Diastolic BP ${dia} mmHg falls outside the 50–100 mmHg range.`); }
+
+  if(age < 17 || age > 65){ score -= 25; reasons.push(`Age ${age} is outside the accepted 17–65 donor range.`); }
+  if(d.weight && w < 50){ score -= 15; reasons.push(`Weight ${w} kg is below the 50 kg recommended minimum.`); }
+
+  if(interval.daysSince !== null && !interval.ok){
+    score -= 25;
+    reasons.push(`Only ${interval.daysSince} day(s) since the last Regular donation on this device — ${interval.daysRemaining} day(s) remain before the ${MIN_INTERVAL_DAYS}-day interval is met.`);
+  }
+
+  if(noteFlags.length){
+    score -= Math.min(30, 10 * noteFlags.length);
+    reasons.push(`Health notes mention term(s) related to: ${noteFlags.join(', ')} — recommend a clinician review before final clearance.`);
+  }
+
+  score = Math.max(0, Math.min(100, score));
+  let tier = 'low', tierLabel = 'Low risk — likely eligible';
+  if(score < 50){ tier = 'high'; tierLabel = 'High risk — manual review required'; }
+  else if(score < 80){ tier = 'med'; tierLabel = 'Medium risk — review recommended'; }
+
+  if(reasons.length === 0) reasons.push('All automated checks passed within normal thresholds.');
+
+  return { score, tier, tierLabel, reasons };
+}
+
+function renderAIPanel(assessment){
+  const panel = document.getElementById('aiPanel');
+  document.getElementById('aiScoreNum').textContent = assessment.score;
+  const pill = document.getElementById('aiTierPill');
+  pill.textContent = assessment.tierLabel;
+  pill.className = 'tier-pill ' + assessment.tier;
+  const fill = document.getElementById('aiMeterFill');
+  fill.style.width = assessment.score + '%';
+  fill.style.background = assessment.tier === 'low' ? 'linear-gradient(90deg,#2E8B57,#3FAE68)'
+    : assessment.tier === 'med' ? 'linear-gradient(90deg,#B8862F,#E0A030)'
+    : 'linear-gradient(90deg,#8A1626,#E13E52)';
+  document.getElementById('aiReasonList').innerHTML = assessment.reasons.map(r => `<li>${r}</li>`).join('');
+  panel.classList.add('show');
 }
 
 // ---------- Validation ----------
@@ -490,6 +734,7 @@ form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   statusEl.textContent = '';
   statusEl.className = 'status-msg';
+  document.getElementById('aiPanel').classList.remove('show');
 
   const data = {
     fullName: document.getElementById('fullName').value.trim(),
@@ -509,24 +754,41 @@ form.addEventListener('submit', async (e)=>{
 
   if(!validate(data)) return;
 
-  const elig = checkEligibility(data);
-
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Saving...';
+  submitBtn.textContent = 'Running AI screening...';
 
   try{
     const list = await loadRegistry();
-    list.push({
+    const priorDonation = findPriorDonation(data.nationalId, list, null);
+    const interval = intervalCheck(data.donationType, priorDonation);
+    const noteFlags = scanNotes(data.notes);
+
+    const elig = checkEligibility(data);
+    if(!interval.ok) elig.reasons.push(`donation interval not met (${interval.daysRemaining}d remaining)`);
+    if(noteFlags.length) elig.reasons.push('health notes flagged for review');
+    elig.eligible = elig.eligible && interval.ok && noteFlags.length === 0;
+
+    const assessment = computeAIAssessment(data, interval, noteFlags);
+
+    const record = {
       ...data,
       id: 'D' + Date.now(),
       eligible: elig.eligible,
       eligibilityReasons: elig.reasons,
+      aiScore: assessment.score,
+      aiTier: assessment.tier,
+      aiReasons: assessment.reasons,
+      noteFlags,
+      intervalDaysRemaining: interval.daysRemaining,
       registeredAt: new Date().toISOString()
-    });
+    };
+    list.push(record);
     const saved = await saveRegistry(list);
+
     if(saved){
+      renderAIPanel(assessment);
       if(elig.eligible){
-        statusEl.textContent = 'Registration saved — donor eligible ✓';
+        statusEl.textContent = `Registration saved — AI confidence ${assessment.score}% ✓`;
         statusEl.classList.add('ok');
       }else{
         statusEl.textContent = 'Registration saved — flagged: ' + elig.reasons.join(', ');
@@ -559,8 +821,11 @@ function timeAgo(iso){
   return new Date(iso).toLocaleDateString('en-GB');
 }
 
+let CURRENT_LIST = [];
+
 async function renderMonitor(){
   const list = await loadRegistry();
+  CURRENT_LIST = list;
 
   document.getElementById('statTotal').textContent = list.length;
 
@@ -572,6 +837,15 @@ async function renderMonitor(){
   const flaggedCount = list.length - eligibleCount;
   document.getElementById('statEligible').textContent = eligibleCount;
   document.getElementById('statFlagged').textContent = flaggedCount;
+
+  // AI stats
+  const scored = list.filter(d => typeof d.aiScore === 'number');
+  const avgScore = scored.length ? Math.round(scored.reduce((s,d)=>s+d.aiScore,0)/scored.length) : null;
+  document.getElementById('statAvgScore').textContent = avgScore === null ? '—' : avgScore + '%';
+  document.getElementById('statHighRisk').textContent = list.filter(d => d.aiTier === 'high').length;
+
+  const eligibleWeekCount = computeEligibleThisWeek(list).length;
+  document.getElementById('statEligibleWeek').textContent = eligibleWeekCount;
 
   // Blood type chart
   const btCounts = {};
@@ -625,19 +899,23 @@ async function renderMonitor(){
 
   const visible = filtered.slice(0,25);
   if(visible.length === 0){
-    body.innerHTML = '<tr><td colspan="7" class="empty">No matching registrations</td></tr>';
+    body.innerHTML = '<tr><td colspan="8" class="empty">No matching registrations</td></tr>';
   }else{
-    body.innerHTML = visible.map(d=>`
+    body.innerHTML = visible.map(d=>{
+      const tier = d.aiTier || 'low';
+      const scoreDisp = typeof d.aiScore === 'number' ? d.aiScore + '%' : '—';
+      return `
       <tr>
         <td style="font-family:'Manrope',sans-serif;">${d.fullName}</td>
         <td><span class="chip ${d.donationType === 'Therapeutic' ? 'type-therapeutic' : ''}">${d.donationType || 'Regular'}</span></td>
         <td><span class="chip">${d.bloodType}</span></td>
         <td>${d.hemoglobin} g/dL · ${d.systolic}/${d.diastolic}</td>
         <td><span class="chip ${d.eligible ? 'status-eligible' : 'status-flagged'}">${d.eligible ? 'Eligible' : 'Flagged'}</span></td>
+        <td><span class="score-cell"><span class="score-dot ${tier}"></span>${scoreDisp}</span></td>
         <td>${timeAgo(d.registeredAt)}</td>
-        <td><button class="row-del" data-id="${d.id}">Remove</button></td>
-      </tr>
-    `).join('');
+        <td><button class="row-id" data-id="${d.id}">ID Card</button><button class="row-del" data-id="${d.id}">Remove</button></td>
+      </tr>`;
+    }).join('');
 
     body.querySelectorAll('.row-del').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
@@ -648,15 +926,125 @@ async function renderMonitor(){
         renderMonitor();
       });
     });
+    body.querySelectorAll('.row-id').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const donor = list.find(d => d.id === btn.dataset.id);
+        if(donor) openIdCard(donor);
+      });
+    });
   }
 }
 
+// ---------- AI Insights tab ----------
+function computeEligibleThisWeek(list){
+  // Latest Regular donation per national ID; interval closes within next 7 days
+  const latestByNid = {};
+  list.filter(d => d.donationType === 'Regular').forEach(d=>{
+    const prev = latestByNid[d.nationalId];
+    if(!prev || new Date(d.registeredAt) > new Date(prev.registeredAt)) latestByNid[d.nationalId] = d;
+  });
+  const now = new Date();
+  const results = [];
+  Object.values(latestByNid).forEach(d=>{
+    const eligibleDate = new Date(new Date(d.registeredAt).getTime() + MIN_INTERVAL_DAYS*86400000);
+    const daysOut = daysBetween(now, eligibleDate);
+    if(daysOut >= 0 && daysOut <= 7){
+      results.push({ name: d.fullName, nationalId: d.nationalId, bloodType: d.bloodType, eligibleDate, daysOut });
+    }
+  });
+  return results.sort((a,b)=> a.daysOut - b.daysOut);
+}
+
+async function renderAIInsights(){
+  const list = await loadRegistry();
+
+  // 14-day trend sparkline
+  const days = [];
+  for(let i=13;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    days.push(d.toDateString());
+  }
+  const counts = days.map(ds => list.filter(d => new Date(d.registeredAt).toDateString() === ds).length);
+  const max = Math.max(1, ...counts);
+  const w = 400, h = 120, pad = 10;
+  const stepX = (w - pad*2) / (counts.length - 1);
+  const points = counts.map((c,i)=>{
+    const x = pad + i*stepX;
+    const y = h - pad - (c/max)*(h - pad*2);
+    return `${x},${y}`;
+  }).join(' ');
+  const svg = document.getElementById('trendSpark');
+  svg.innerHTML = `
+    <polyline points="${points}" fill="none" stroke="#7FC4FF" stroke-width="2"/>
+    ${counts.map((c,i)=>{
+      const x = pad + i*stepX; const y = h - pad - (c/max)*(h - pad*2);
+      return `<circle cx="${x}" cy="${y}" r="2.4" fill="#7FC4FF"/>`;
+    }).join('')}
+  `;
+
+  // Flag frequency
+  const freq = {};
+  list.forEach(d => (d.aiReasons || []).forEach(r=>{
+    // bucket by leading phrase before first comma/period for compact grouping
+    const key = r.split(' — ')[0].replace(/[0-9.]+/g,'#').slice(0,60);
+    freq[key] = (freq[key]||0) + 1;
+  }));
+  const entries = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const flagFreqEl = document.getElementById('flagFreq');
+  if(entries.length === 0){
+    flagFreqEl.innerHTML = '<p class="hint">No flags recorded yet.</p>';
+  }else{
+    const maxF = Math.max(...entries.map(e=>e[1]));
+    flagFreqEl.innerHTML = entries.map(([label,count])=>`
+      <div class="bar-item wide">
+        <span class="type small" title="${label}">${label}</span>
+        <div class="bar-track"><div class="bar-fill ai" style="width:${Math.round((count/maxF)*100)}%"></div></div>
+        <span class="count">${count}</span>
+      </div>
+    `).join('');
+  }
+
+  // Eligible this week
+  const soon = computeEligibleThisWeek(list);
+  const soonEl = document.getElementById('eligibleSoonList');
+  if(soon.length === 0){
+    soonEl.innerHTML = '<li>No matches right now.</li>';
+  }else{
+    soonEl.innerHTML = soon.map(s=>`
+      <li>
+        <span class="name">${s.name} <span class="meta">(${s.bloodType})</span></span>
+        <span class="meta">${s.daysOut === 0 ? 'eligible today' : 'eligible in ' + s.daysOut + 'd — ' + s.eligibleDate.toLocaleDateString('en-GB')}</span>
+      </li>
+    `).join('');
+  }
+}
+
+// ---------- Donor ID card modal ----------
+const idCardModal = document.getElementById('idCardModal');
+function openIdCard(donor){
+  document.getElementById('cardName').textContent = donor.fullName;
+  document.getElementById('cardId').textContent = donor.id;
+  document.getElementById('cardMeta').innerHTML = `${donor.bloodType} · ${donor.donationType || 'Regular'}<br>Registered ${new Date(donor.registeredAt).toLocaleDateString('en-GB')}`;
+  const qrEl = document.getElementById('qrContainer');
+  qrEl.innerHTML = '';
+  if(window.QRCode){
+    new QRCode(qrEl, { text: donor.id, width: 140, height: 140, colorDark: '#0A1628', colorLight: '#F6F3EC' });
+  }else{
+    qrEl.innerHTML = '<span style="color:#0A1628; font-family:monospace; font-size:11px;">QR unavailable offline</span>';
+  }
+  idCardModal.classList.add('show');
+}
+document.getElementById('modalCloseBtn').addEventListener('click', ()=> idCardModal.classList.remove('show'));
+idCardModal.addEventListener('click', (e)=>{ if(e.target === idCardModal) idCardModal.classList.remove('show'); });
+document.getElementById('printCardBtn').addEventListener('click', ()=> window.print());
+
 function exportCSV(list){
-  const headers = ['Name','National ID','Phone','Age','Gender','Weight','Donation Type','Blood Type','Hemoglobin','Systolic','Diastolic','Status','Registered At','Notes'];
+  const headers = ['Name','National ID','Phone','Age','Gender','Weight','Donation Type','Blood Type','Hemoglobin','Systolic','Diastolic','Status','AI Score','AI Tier','Registered At','Notes'];
   const rows = list.map(d => [
     d.fullName, d.nationalId, d.phone, d.age, d.gender, d.weight,
     d.donationType, d.bloodType, d.hemoglobin, d.systolic, d.diastolic,
-    d.eligible ? 'Eligible' : 'Flagged', d.registeredAt, (d.notes || '').replace(/[\r\n,]+/g,' ')
+    d.eligible ? 'Eligible' : 'Flagged', d.aiScore ?? '', d.aiTier ?? '', d.registeredAt, (d.notes || '').replace(/[\r\n,]+/g,' ')
   ]);
   const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -738,6 +1126,9 @@ document.getElementById('importFileInput').addEventListener('change', (e)=>{
 setInterval(()=>{
   if(document.getElementById('view-monitor').classList.contains('active') && document.activeElement.id !== 'searchBox'){
     renderMonitor();
+  }
+  if(document.getElementById('view-ai').classList.contains('active')){
+    renderAIInsights();
   }
 }, 5000);
 
